@@ -109,3 +109,20 @@ def test_workers_reported_are_the_ones_actually_used(n_categories, expected):
             return result
     result = asyncio.run(go())
     assert result.workers == expected and result.pages_ok == n_categories
+
+
+def test_a_dead_browser_fails_every_page_instead_of_hanging():
+    """new_page() raising (browser gone) must still mark every task done, or crawl() would wait forever."""
+    from scraper.models import Category
+
+    class DeadContext:
+        async def new_page(self):
+            raise RuntimeError("Target page, context or browser has been closed")
+
+    async def go():
+        crawler = Crawler(DeadContext(), CrawlSettings(concurrency=2, delay_s=0), logging.getLogger("test"))
+        cats = [Category(name=f"C{i}", url=f"https://books.toscrape.com/c{i}/index.html") for i in range(3)]
+        return await asyncio.wait_for(crawler.crawl(cats), timeout=10)
+    result = asyncio.run(go())
+    assert result.pages_failed == 3 and result.pages_ok == 0
+    assert "browser has been closed" in result.pages[0].error

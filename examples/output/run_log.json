@@ -1,11 +1,11 @@
 {
   "tool": "playwright-scraper-demo",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "status": "success",
-  "started_at": "2026-09-25T15:52:51+00:00",
-  "finished_at": "2026-09-25T15:53:21+00:00",
-  "crawl_duration_s": 28.64,
-  "total_duration_s": 31.01,
+  "started_at": "2026-09-25T16:26:40+00:00",
+  "finished_at": "2026-09-25T16:27:05+00:00",
+  "crawl_duration_s": 23.6,
+  "total_duration_s": 25.85,
   "settings": {
     "base_url": "https://books.toscrape.com/",
     "concurrency": 4,
@@ -16,7 +16,7 @@
     "nav_timeout_ms": 20000,
     "block_assets": true,
     "wait_until": "domcontentloaded",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0 Safari/537.36 playwright-scraper-demo/1.1.0 (+https://github.com/joao-jleite/playwright-scraper-demo)",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0 Safari/537.36 playwright-scraper-demo/1.2.0 (+https://github.com/joao-jleite/playwright-scraper-demo)",
     "categories_arg": null,
     "headed": false,
     "workers_used": 4
@@ -32,8 +32,10 @@
   },
   "categories": {
     "available": 50,
-    "crawled": 50
+    "crawled": 50,
+    "stopped_at_max_pages": []
   },
+  "page_limit_note": null,
   "pages": {
     "ok": 80,
     "failed": 0,
@@ -147,21 +149,7 @@
       "valid": 11,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 915,
-      "error": null
-    },
-    {
-      "category": "Mystery",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
-      "status": "ok",
-      "total_pages": 2,
-      "http_status": 200,
-      "items": 20,
-      "valid": 20,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 898,
+      "elapsed_ms": 717,
       "error": null
     },
     {
@@ -175,7 +163,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 915,
+      "elapsed_ms": 726,
       "error": null
     },
     {
@@ -189,7 +177,21 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 989,
+      "elapsed_ms": 710,
+      "error": null
+    },
+    {
+      "category": "Mystery",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+      "status": "ok",
+      "total_pages": 2,
+      "http_status": 200,
+      "items": 20,
+      "valid": 20,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 747,
       "error": null
     },
     {
@@ -203,7 +205,7 @@
       "valid": 19,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 950,
+      "elapsed_ms": 623,
       "error": null
     },
     {
@@ -217,21 +219,7 @@
       "valid": 11,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 917,
-      "error": null
-    },
-    {
-      "category": "Womens Fiction",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/womens-fiction_9/index.html",
-      "status": "ok",
-      "total_pages": null,
-      "http_status": 200,
-      "items": 17,
-      "valid": 17,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 827,
+      "elapsed_ms": 555,
       "error": null
     },
     {
@@ -245,7 +233,21 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 948,
+      "elapsed_ms": 552,
+      "error": null
+    },
+    {
+      "category": "Womens Fiction",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/womens-fiction_9/index.html",
+      "status": "ok",
+      "total_pages": null,
+      "http_status": 200,
+      "items": 17,
+      "valid": 17,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 479,
       "error": null
     },
     {
@@ -259,21 +261,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1174,
-      "error": null
-    },
-    {
-      "category": "Religion",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/religion_12/index.html",
-      "status": "ok",
-      "total_pages": null,
-      "http_status": 200,
-      "items": 7,
-      "valid": 7,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 1067,
+      "elapsed_ms": 722,
       "error": null
     },
     {
@@ -287,7 +275,21 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1084,
+      "elapsed_ms": 615,
+      "error": null
+    },
+    {
+      "category": "Religion",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/religion_12/index.html",
+      "status": "ok",
+      "total_pages": null,
+      "http_status": 200,
+      "items": 7,
+      "valid": 7,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 578,
       "error": null
     },
     {
@@ -301,7 +303,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 948,
+      "elapsed_ms": 577,
       "error": null
     },
     {
@@ -315,35 +317,7 @@
       "valid": 13,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 749,
-      "error": null
-    },
-    {
-      "category": "Default",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/default_15/index.html",
-      "status": "ok",
-      "total_pages": 8,
-      "http_status": 200,
-      "items": 20,
-      "valid": 20,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 745,
-      "error": null
-    },
-    {
-      "category": "Sports and Games",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/sports-and-games_17/index.html",
-      "status": "ok",
-      "total_pages": null,
-      "http_status": 200,
-      "items": 5,
-      "valid": 5,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 751,
+      "elapsed_ms": 530,
       "error": null
     },
     {
@@ -357,7 +331,35 @@
       "valid": 16,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 806,
+      "elapsed_ms": 500,
+      "error": null
+    },
+    {
+      "category": "Sports and Games",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/sports-and-games_17/index.html",
+      "status": "ok",
+      "total_pages": null,
+      "http_status": 200,
+      "items": 5,
+      "valid": 5,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 495,
+      "error": null
+    },
+    {
+      "category": "Default",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/default_15/index.html",
+      "status": "ok",
+      "total_pages": 8,
+      "http_status": 200,
+      "items": 20,
+      "valid": 20,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 504,
       "error": null
     },
     {
@@ -371,7 +373,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 957,
+      "elapsed_ms": 712,
       "error": null
     },
     {
@@ -385,7 +387,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 934,
+      "elapsed_ms": 644,
       "error": null
     },
     {
@@ -399,7 +401,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 905,
+      "elapsed_ms": 645,
       "error": null
     },
     {
@@ -413,7 +415,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 786,
+      "elapsed_ms": 548,
       "error": null
     },
     {
@@ -427,7 +429,7 @@
       "valid": 14,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 586,
+      "elapsed_ms": 558,
       "error": null
     },
     {
@@ -441,7 +443,7 @@
       "valid": 19,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 539,
+      "elapsed_ms": 564,
       "error": null
     },
     {
@@ -455,7 +457,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 578,
+      "elapsed_ms": 522,
       "error": null
     },
     {
@@ -469,7 +471,7 @@
       "valid": 8,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 508,
+      "elapsed_ms": 476,
       "error": null
     },
     {
@@ -483,7 +485,7 @@
       "valid": 7,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 500,
+      "elapsed_ms": 269,
       "error": null
     },
     {
@@ -497,7 +499,7 @@
       "valid": 9,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 529,
+      "elapsed_ms": 423,
       "error": null
     },
     {
@@ -511,7 +513,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 550,
+      "elapsed_ms": 406,
       "error": null
     },
     {
@@ -525,7 +527,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 503,
+      "elapsed_ms": 338,
       "error": null
     },
     {
@@ -539,7 +541,7 @@
       "valid": 10,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 879,
+      "elapsed_ms": 256,
       "error": null
     },
     {
@@ -553,7 +555,7 @@
       "valid": 17,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 784,
+      "elapsed_ms": 627,
       "error": null
     },
     {
@@ -567,7 +569,7 @@
       "valid": 18,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 732,
+      "elapsed_ms": 503,
       "error": null
     },
     {
@@ -581,7 +583,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 743,
+      "elapsed_ms": 484,
       "error": null
     },
     {
@@ -595,7 +597,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 562,
+      "elapsed_ms": 251,
       "error": null
     },
     {
@@ -609,7 +611,7 @@
       "valid": 12,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 561,
+      "elapsed_ms": 304,
       "error": null
     },
     {
@@ -623,7 +625,7 @@
       "valid": 5,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 603,
+      "elapsed_ms": 303,
       "error": null
     },
     {
@@ -637,7 +639,7 @@
       "valid": 11,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 569,
+      "elapsed_ms": 262,
       "error": null
     },
     {
@@ -651,7 +653,7 @@
       "valid": 3,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 498,
+      "elapsed_ms": 209,
       "error": null
     },
     {
@@ -665,7 +667,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 613,
+      "elapsed_ms": 341,
       "error": null
     },
     {
@@ -679,7 +681,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 548,
+      "elapsed_ms": 304,
       "error": null
     },
     {
@@ -693,7 +695,7 @@
       "valid": 5,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 538,
+      "elapsed_ms": 309,
       "error": null
     },
     {
@@ -707,7 +709,7 @@
       "valid": 2,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 692,
+      "elapsed_ms": 215,
       "error": null
     },
     {
@@ -721,7 +723,7 @@
       "valid": 3,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 599,
+      "elapsed_ms": 219,
       "error": null
     },
     {
@@ -735,7 +737,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 628,
+      "elapsed_ms": 360,
       "error": null
     },
     {
@@ -749,7 +751,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 534,
+      "elapsed_ms": 263,
       "error": null
     },
     {
@@ -763,7 +765,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 487,
+      "elapsed_ms": 195,
       "error": null
     },
     {
@@ -777,7 +779,7 @@
       "valid": 4,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 518,
+      "elapsed_ms": 296,
       "error": null
     },
     {
@@ -791,7 +793,7 @@
       "valid": 3,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 485,
+      "elapsed_ms": 382,
       "error": null
     },
     {
@@ -805,7 +807,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 493,
+      "elapsed_ms": 335,
       "error": null
     },
     {
@@ -819,7 +821,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 477,
+      "elapsed_ms": 215,
       "error": null
     },
     {
@@ -833,21 +835,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 528,
-      "error": null
-    },
-    {
-      "category": "Mystery",
-      "page_no": 2,
-      "url": "https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html",
-      "status": "ok",
-      "total_pages": 2,
-      "http_status": 200,
-      "items": 12,
-      "valid": 12,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 527,
+      "elapsed_ms": 226,
       "error": null
     },
     {
@@ -861,7 +849,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 526,
+      "elapsed_ms": 524,
       "error": null
     },
     {
@@ -875,7 +863,21 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 738,
+      "elapsed_ms": 456,
+      "error": null
+    },
+    {
+      "category": "Mystery",
+      "page_no": 2,
+      "url": "https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html",
+      "status": "ok",
+      "total_pages": 2,
+      "http_status": 200,
+      "items": 12,
+      "valid": 12,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 384,
       "error": null
     },
     {
@@ -889,7 +891,7 @@
       "valid": 15,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 630,
+      "elapsed_ms": 607,
       "error": null
     },
     {
@@ -903,7 +905,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 704,
+      "elapsed_ms": 525,
       "error": null
     },
     {
@@ -917,7 +919,7 @@
       "valid": 9,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 597,
+      "elapsed_ms": 523,
       "error": null
     },
     {
@@ -931,7 +933,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 863,
+      "elapsed_ms": 522,
       "error": null
     },
     {
@@ -945,7 +947,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 861,
+      "elapsed_ms": 694,
       "error": null
     },
     {
@@ -959,7 +961,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 818,
+      "elapsed_ms": 694,
       "error": null
     },
     {
@@ -973,7 +975,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 748,
+      "elapsed_ms": 543,
       "error": null
     },
     {
@@ -987,7 +989,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 704,
+      "elapsed_ms": 529,
       "error": null
     },
     {
@@ -1001,7 +1003,7 @@
       "valid": 10,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 683,
+      "elapsed_ms": 237,
       "error": null
     },
     {
@@ -1015,7 +1017,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 693,
+      "elapsed_ms": 723,
       "error": null
     },
     {
@@ -1029,7 +1031,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 654,
+      "elapsed_ms": 719,
       "error": null
     },
     {
@@ -1043,7 +1045,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 772,
+      "elapsed_ms": 681,
       "error": null
     },
     {
@@ -1057,7 +1059,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 785,
+      "elapsed_ms": 364,
       "error": null
     },
     {
@@ -1071,7 +1073,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 747,
+      "elapsed_ms": 512,
       "error": null
     },
     {
@@ -1085,7 +1087,7 @@
       "valid": 8,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 751,
+      "elapsed_ms": 517,
       "error": null
     },
     {
@@ -1099,7 +1101,7 @@
       "valid": 14,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 693,
+      "elapsed_ms": 480,
       "error": null
     },
     {
@@ -1113,7 +1115,7 @@
       "valid": 15,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 693,
+      "elapsed_ms": 266,
       "error": null
     },
     {
@@ -1127,7 +1129,7 @@
       "valid": 5,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 691,
+      "elapsed_ms": 260,
       "error": null
     },
     {
@@ -1141,7 +1143,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 637,
+      "elapsed_ms": 507,
       "error": null
     },
     {
@@ -1155,7 +1157,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 599,
+      "elapsed_ms": 405,
       "error": null
     },
     {
@@ -1169,7 +1171,7 @@
       "valid": 7,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 658,
+      "elapsed_ms": 405,
       "error": null
     },
     {
@@ -1183,7 +1185,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 620,
+      "elapsed_ms": 325,
       "error": null
     },
     {
@@ -1197,7 +1199,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 452,
+      "elapsed_ms": 302,
       "error": null
     },
     {
@@ -1211,7 +1213,7 @@
       "valid": 10,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 480,
+      "elapsed_ms": 432,
       "error": null
     },
     {
@@ -1225,7 +1227,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 551,
+      "elapsed_ms": 318,
       "error": null
     },
     {
@@ -1239,7 +1241,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 505,
+      "elapsed_ms": 344,
       "error": null
     },
     {
@@ -1253,7 +1255,7 @@
       "valid": 12,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 475,
+      "elapsed_ms": 380,
       "error": null
     }
   ]

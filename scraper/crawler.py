@@ -7,8 +7,13 @@ Design notes
   lets different categories progress in parallel while each category stays ordered.
 - Every navigation goes through `_goto_with_retry` (exponential backoff + jitter);
   after every page the worker sleeps `delay_s` (+ jitter) to stay polite.
-- robots.txt is checked for every URL, the home page included. A robots.txt `Crawl-delay` is
-  enforced by one limiter shared by all workers, so N workers never exceed the site's rate.
+- robots.txt is checked before every navigation, the home page included. Sub-resources and the
+  target of an HTTP redirect are not checked separately.
+- A robots.txt `Crawl-delay` is enforced by one limiter shared by all workers: at most one page
+  load starts per Crawl-delay, whatever the number of workers. In headless mode a page load is a
+  single request (only the HTML document: images, fonts, media, stylesheets and scripts are
+  blocked, the extraction reads the DOM only). In headed mode the page also loads its assets.
+- Pagination never revisits a URL already queued, so a "next" link that loops ends the category.
 - Extraction is one `evaluate` call per page (no per-element round trips).
 """
 
@@ -63,6 +68,12 @@ PAGER_JS = """
 }
 """
 
+# Resource types that never reach the network in headless mode. The extraction reads the DOM only,
+# so the site serves one HTML document per page load. context.route() also disables the HTTP
+# cache, so without this every page would download the same CSS and JS again. For a site that
+# renders its content with JavaScript, remove "script" from this set.
+BLOCKED_RESOURCE_TYPES = frozenset({"image", "font", "media", "stylesheet", "script"})
+
 CATEGORIES_JS = """
 () => Array.from(document.querySelectorAll('div.side_categories ul li ul li a'))
         .map(a => ({ name: a.textContent.trim(), url: a.href }))
@@ -86,7 +97,7 @@ class CrawlSettings:
     attempts: int = 3  # tries per page, the first one included (3 = up to 2 retries)
     backoff_base_s: float = 1.0
     nav_timeout_ms: int = 20_000
-    block_assets: bool = True  # skip images/fonts/media: less load on the target, faster runs
+    block_assets: bool = True  # headless: HTML only (BLOCKED_RESOURCE_TYPES), less load on the target
     wait_until: str = "domcontentloaded"
     user_agent: str = USER_AGENT
 
@@ -121,6 +132,9 @@ class CrawlResult:
     validation_errors: list[dict[str, Any]] = field(default_factory=list)
     retries: int = 0
     workers: int = 0  # browser pages actually used: min(concurrency, categories)
+    # categories that still had a "next" page when --max-pages stopped them (the run covers only
+    # the first max_pages listing pages of those categories)
+    stopped_at_max_pages: list[str] = field(default_factory=list)
 
     @property
     def pages_ok(self) -> int:
@@ -172,6 +186,7 @@ class Crawler:
         self._gate = RateGate(crawl_delay) if crawl_delay else None
         self._cat_items: dict[str, int] = defaultdict(int)
         self._cat_pages: dict[str, int] = defaultdict(int)
+        self._queued: set[str] = set()  # every listing URL ever queued: a looping "next" link ends there
 
     # ------------------------------------------------------------------ setup
     async def install_asset_blocking(self) -> None:
@@ -179,7 +194,7 @@ class Crawler:
             return
 
         async def _block(route: Route) -> None:
-            if route.request.resource_type in {"image", "font", "media"}:
+            if route.request.resource_type in BLOCKED_RESOURCE_TYPES:
                 await route.abort()
             else:
                 await route.continue_()
@@ -203,6 +218,7 @@ class Crawler:
     async def crawl(self, categories: list[Category]) -> CrawlResult:
         queue: asyncio.Queue[PageTask] = asyncio.Queue()
         for cat in categories:
+            self._queued.add(_url_key(cat.url))
             queue.put_nowait(PageTask(cat, cat.url, 1))
 
         n_workers = max(1, min(self.s.concurrency, len(categories)))
@@ -220,23 +236,31 @@ class Crawler:
         return self.result
 
     async def _worker(self, idx: int, queue: asyncio.Queue[PageTask]) -> None:
-        page = await self.context.new_page()
+        # The page is opened inside the loop, under the same guard as the work itself: if the browser
+        # is gone, every task is still marked done (as a failed page), so crawl()'s queue.join() returns.
+        page: Optional[Page] = None
         try:
             while True:
                 task = await queue.get()
                 try:
-                    if page.is_closed():  # a crashed tab should not kill the worker
+                    if page is None or page.is_closed():  # first task, or a crashed tab
                         page = await self.context.new_page()
                     await self._process(page, task, queue)
-                except Exception as exc:  # last-resort guard: record and keep going
-                    event(self.log, "worker_error", logging.ERROR, worker=idx, url=task.url, error=repr(exc))
+                except Exception as exc:  # last-resort guard: record the page as failed and keep going
+                    error = f"{type(exc).__name__}: {(str(exc).splitlines() or [''])[0][:200]}"
+                    self.result.pages.append(PageEvent(category=task.category.name, page_no=task.page_no,
+                                                       url=task.url, status="failed", error=error))
+                    event(self.log, "worker_error", logging.ERROR, worker=idx, url=task.url, error=error)
                 finally:
                     queue.task_done()
                 # Politeness delay between requests of the same worker (with jitter).
                 await asyncio.sleep(self.s.delay_s + random.uniform(0, self.s.delay_s * 0.5))
         finally:
-            if not page.is_closed():
-                await page.close()
+            if page is not None and not page.is_closed():
+                try:
+                    await page.close()
+                except Exception:  # browser already gone: nothing left to close
+                    pass
 
     async def _process(self, page: Page, task: PageTask, queue: asyncio.Queue[PageTask]) -> None:
         cat = task.category.name
@@ -291,11 +315,21 @@ class Crawler:
             except Exception as exc:  # a broken hook must never break the crawl
                 event(self.log, "hook_error", logging.WARNING, error=repr(exc))
 
+        nxt = pager.get("next")
         within_limit = self.s.max_pages is None or task.page_no < self.s.max_pages
-        if pager.get("next") and within_limit:
-            queue.put_nowait(PageTask(task.category, pager["next"], task.page_no + 1))
-        else:
-            event(self.log, "category_done", category=cat, pages=self._cat_pages[cat], items=self._cat_items[cat])
+        if nxt and within_limit and _url_key(nxt) not in self._queued:
+            self._queued.add(_url_key(nxt))
+            queue.put_nowait(PageTask(task.category, nxt, task.page_no + 1))
+            return
+        extra: dict[str, Any] = {}
+        if nxt and not within_limit:  # the category has more pages than --max-pages lets the run read
+            self.result.stopped_at_max_pages.append(cat)
+            extra["stopped_at_max_pages"] = True
+        elif nxt:  # the "next" link points back to a page already queued: stop instead of looping
+            extra["pagination_loop"] = True
+            event(self.log, "pagination_loop", logging.WARNING, category=cat, url=nxt)
+        event(self.log, "category_done", category=cat, pages=self._cat_pages[cat], items=self._cat_items[cat],
+              **extra)
 
     async def _goto_with_retry(self, page: Page, url: str, what: str) -> tuple[int, int]:
         """Navigate with retries. Returns (http_status, attempts). Raises on final failure."""
@@ -324,6 +358,11 @@ class Crawler:
                 await asyncio.sleep(wait)
         assert last_exc is not None
         raise last_exc
+
+
+def _url_key(url: str) -> str:
+    """URL without its #fragment: the same listing page, whatever anchor a link carries."""
+    return url.split("#", 1)[0]
 
 
 def _parse_total_pages(text: Optional[str]) -> Optional[int]:

@@ -36,13 +36,14 @@ def _book(title: str, category: str, price: float, rating: int, stock: bool = Tr
                 listing_page=1, scraped_at=NOW)
 
 
-def _outcome(books: list[Book], failed_page: bool = False) -> ScrapeOutcome:
+def _outcome(books: list[Book], failed_page: bool = False, stopped: tuple[str, ...] = ()) -> ScrapeOutcome:
     pages = [PageEvent(category=c.name, page_no=1, url=c.url, status="ok", items=2, valid=2, attempts=1)
              for c in CATS[:2]]
     if failed_page:
         pages.append(PageEvent(category="Mystery", page_no=1, url=CATS[2].url, status="failed", attempts=3,
                                error="TimeoutError: simulated"))
-    result = CrawlResult(books=books, pages=pages, retries=2 if failed_page else 0, workers=3)
+    result = CrawlResult(books=books, pages=pages, retries=2 if failed_page else 0, workers=3,
+                         stopped_at_max_pages=list(stopped))
     robots = RobotsPolicy("https://books.toscrape.com/robots.txt", 404, "no robots.txt (HTTP 404): test")
     return ScrapeOutcome(robots=robots, available=CATS, selected=CATS, result=result, started_at=NOW,
                          crawl_seconds=12.3)
@@ -59,9 +60,10 @@ DELIVERABLES = ["books.csv", "books.xlsx", "report.pdf", "run_log.json",
                 "charts/avg_price_by_category.png", "charts/rating_distribution.png"]
 
 
-def _build(out, books, failed_page=False):
-    settings = RunSettings(out_dir=out, crawl=CrawlSettings(concurrency=4))
-    return build_outputs(_outcome(books, failed_page), settings, setup_logging(None, "WARNING"), wall_t0=0.0)
+def _build(out, books, failed_page=False, max_pages=None, stopped=()):
+    settings = RunSettings(out_dir=out, crawl=CrawlSettings(concurrency=4, max_pages=max_pages))
+    return build_outputs(_outcome(books, failed_page, stopped), settings, setup_logging(None, "WARNING"),
+                         wall_t0=0.0)
 
 
 @pytest.fixture()
@@ -84,6 +86,9 @@ def test_xlsx_sheets_tables_and_formats(run):
     out, _ = run
     wb = load_workbook(out / "books.xlsx")
     assert wb.sheetnames == ["Data", "Summary", "Opportunities", "Run Info"]
+    # opens on Summary, whose first lines say DEMO; exactly one tab selected (no grouped sheets)
+    assert wb.active.title == "Summary" and wb["Summary"]["A2"].value.startswith("DEMO data")
+    assert [ws.sheet_view.tabSelected for ws in wb.worksheets] == [False, True, False, False]
 
     data = wb["Data"]
     assert "tblBooks" in data.tables and data.tables["tblBooks"].ref == f"A1:H{len(BOOKS) + 1}"
@@ -189,7 +194,9 @@ def test_locked_output_changes_nothing_and_logs_failure(tmp_path, monkeypatch):
     # ...and run_log.json says the run failed, and why
     saved = json.loads((tmp_path / "run_log.json").read_text(encoding="utf-8"))
     assert saved["status"] == "failed" and saved["failed_stage"] == "outputs"
-    assert "books.xlsx is open" in saved["error"] and saved["records"]["exported"] == 3
+    assert "books.xlsx is open" in saved["error"]
+    # the crawl had 3 valid records, but none of them was delivered
+    assert saved["records"]["valid"] == 3 and saved["records"]["exported"] == 0
     assert not list(tmp_path.glob(".staging-*"))
 
 
@@ -207,3 +214,22 @@ def test_pdf_wording_follows_the_real_number_of_categories():
     assert "173 titles match; the top 10 are listed below" in _opportunities_intro(173, 10)
     assert "No title matches" in _opportunities_intro(0, 0)
     assert (_pct_below(0.0003), _pct_below(0.253)) == ("<1%", "25%")
+
+
+def test_max_pages_is_stated_in_every_deliverable(tmp_path):
+    saved = _build(tmp_path, BOOKS, max_pages=1, stopped=("Travel",))
+    assert saved["status"] == "success"  # the limit was asked for...
+    assert saved["categories"]["stopped_at_max_pages"] == ["Travel"]  # ...and what it left out is recorded
+    assert "Travel has more pages that were not crawled" in saved["page_limit_note"]
+    wb = load_workbook(tmp_path / "books.xlsx")
+    assert wb["Summary"]["A3"].value.startswith("Page limit: --max-pages 1")
+    info = {r[0].value: r[1].value for r in wb["Run Info"].iter_rows(min_row=4) if r[0].value}
+    assert info["Page limit"] == saved["page_limit_note"]
+    pdf = (tmp_path / "report.pdf").read_bytes()
+    assert len(re.findall(rb"/Type /Page(?!s)", pdf)) == 3  # the extra paragraph does not add a page
+
+
+def test_full_crawl_has_no_page_limit_note(run):
+    out, saved = run
+    assert saved["page_limit_note"] is None and saved["categories"]["stopped_at_max_pages"] == []
+    assert load_workbook(out / "books.xlsx")["Summary"]["A3"].value is None

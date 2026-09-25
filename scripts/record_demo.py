@@ -33,7 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from scraper.cli import build_parser, settings_from_args  # noqa: E402
+from scraper.cli import build_parser, settings_from_args, summary_lines  # noqa: E402
 from scraper.crawler import CrawlSettings, PageEvent  # noqa: E402
 from scraper.log import ConsoleFormatter, format_console, setup_logging  # noqa: E402
 from scraper.models import Book  # noqa: E402
@@ -244,17 +244,6 @@ def full_run_lines() -> list[str]:
     return out
 
 
-def summary_lines(run_log: dict, out_dir: str) -> list[str]:
-    """Same text the CLI prints at the end (scraper/cli.py)."""
-    rec, pages = run_log["records"], run_log["pages"]
-    lines = ["", f"[{run_log['status'].upper()}] {rec['exported']} products · {run_log['categories']['crawled']} "
-                 f"categories · {pages['ok']} pages · {pages['failed']} failed · {rec['invalid']} invalid · "
-                 f"{run_log['crawl_duration_s']:.1f} s"]
-    for key in ("xlsx", "csv", "pdf", "run_log"):
-        lines.append(f"  -> {out_dir}\\{run_log['outputs'][key]}")
-    return lines
-
-
 class Recorder:
     def __init__(self, context: BrowserContext) -> None:
         self.context = context
@@ -404,7 +393,7 @@ async def main() -> None:
         await term.set_content(TERMINAL_HTML)
         t = lambda: time.monotonic() - rec.created_at(term)  # noqa: E731
         await term.evaluate("([c]) => prompt_(c, 0)", [DEMO_CMD])
-        await term.evaluate("([l]) => lines(l, 0)", [capture.lines + summary_lines(demo_log, "demo_out")])
+        await term.evaluate("([l]) => lines(l, 0)", [capture.lines + summary_lines(demo_log, "demo_out", "\\")])
         t_a = t()
         await term.wait_for_timeout(750)
         t_b = t()
@@ -414,7 +403,7 @@ async def main() -> None:
         await term.evaluate("([s]) => ff(s)", [ff_label])
         await term.evaluate("([l, ms]) => lines(l, ms)", [full_run_lines(), 7])
         await term.evaluate("() => ff('')")
-        await term.evaluate("([l]) => lines(l, 0)", [summary_lines(full_log, r"examples\output")])
+        await term.evaluate("([l]) => lines(l, 0)", [summary_lines(full_log, r"examples\output", "\\")])
         t_c = t()
         await term.wait_for_timeout(1100)
         rec.add("log", term, [(t_a - 0.1, t_b, 1.0, None), (t_b, t_c, 3.0, "3x"), (t_c, t(), 1.0, None)])
@@ -441,8 +430,8 @@ async def main() -> None:
         t = lambda: time.monotonic() - rec.created_at(xl)  # noqa: E731
         t_a = t()
         await xl.evaluate(CURSOR_JS, [560, 400, 10])
-        await xl.wait_for_timeout(600)
-        for name, hold in (("Summary", 1300), ("Opportunities", 950)):
+        await xl.wait_for_timeout(1300)  # the workbook opens on Summary (its active sheet)
+        for name, hold in (("Data", 700), ("Opportunities", 950)):
             box = await xl.locator(f'.tab[data-sheet="{name}"]').bounding_box()
             await xl.evaluate(CURSOR_JS, [box["x"] + box["width"] / 2 - 4, box["y"] + box["height"] / 2 - 4, 370])
             await xl.click(f'.tab[data-sheet="{name}"]')

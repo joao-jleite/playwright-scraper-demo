@@ -56,6 +56,8 @@ class ReportInput:
     categories_available: int = 0   # ...out of how many the site lists
     headed: bool = False
     crawl_delay_s: float | None = None  # robots.txt Crawl-delay, when the site sets one
+    max_pages: int | None = None  # --max-pages (None = every listing page of each category)
+    limit_note: str | None = None  # what --max-pages left out (pipeline.page_limit_note)
 
 
 def _register_fonts() -> None:
@@ -240,6 +242,13 @@ def write_pdf(path: Path, data: ReportInput, top_categories: int = 12, top_oppor
     mode = "headed" if data.headed else "headless"
     pages_used = "1 browser page" if data.concurrency == 1 else f"{data.concurrency} concurrent browser pages"
     robots_text = data.robots_summary[:1].upper() + data.robots_summary[1:]
+    if data.max_pages is None:
+        walk = f"walks {scope} category listings with pagination"
+    else:  # --max-pages: what was left out is spelled out in the "Page limit" paragraph
+        first = "listing page" if data.max_pages == 1 else f"{data.max_pages} listing pages"
+        cats = (f"all {crawled} categories" if crawled >= data.categories_available
+                else f"{crawled} categories (out of {data.categories_available} on the site)")
+        walk = f"reads the first {first} of each of {cats}"
     robots_delay = (f" The site's robots.txt Crawl-delay of {data.crawl_delay_s:g} s is enforced across all "
                     "pages." if data.crawl_delay_s else "")
 
@@ -250,12 +259,13 @@ def write_pdf(path: Path, data: ReportInput, top_categories: int = 12, top_oppor
     story.append(Spacer(1, 7 * mm))
     story.append(Paragraph("About this run", st["h2"]))
     about = [
-        f"<b>Scenario.</b> A retailer wants a daily view of a competitor's catalog: what is listed, at which "
+        f"<b>Scenario.</b> A retailer wants a daily view of a competitor's catalog: what is listed, at what "
         f"price, how it is rated and whether it is in stock. This report is generated automatically from that crawl.",
-        f"<b>Method.</b> Playwright (Chromium, {mode}) walks {scope} category listings with "
-        f"pagination, using {pages_used}, a {data.delay_s:.1f} s polite delay with "
+        f"<b>Method.</b> Playwright (Chromium, {mode}) {walk}, "
+        f"using {pages_used}, a {data.delay_s:.1f} s polite delay with "
         f"jitter and retries with exponential backoff.{robots_delay} Every record is validated with pydantic "
         f"before export.",
+        *([f"<b>Page limit.</b> {escape(data.limit_note)}"] if data.limit_note else []),
         f"<b>robots.txt.</b> {escape(robots_text)}.",
         f"<b>Quality.</b> {data.pages_ok} listing pages OK, {data.pages_failed} failed, {data.retries} retries, "
         f"{data.invalid_records} invalid records, {data.duplicates} duplicates removed.",
@@ -313,6 +323,9 @@ def write_pdf(path: Path, data: ReportInput, top_categories: int = 12, top_oppor
     block = [Paragraph(heading, st["h2"])]
     if truncated:
         block.append(Paragraph("Full list of categories in books.xlsx → Summary.", st["small"]))
+    if data.max_pages is not None:
+        block.append(Paragraph(f"Titles = products on the listing pages this run read (--max-pages "
+                               f"{data.max_pages}), not necessarily the whole category.", st["small"]))
     block += [
         Spacer(1, 2 * mm),
         _table(["Category", "Titles", "Avg price", "Median", "Min", "Max", "Avg rating", "Opport."], cat_rows,

@@ -11,13 +11,14 @@ Exit codes (for schedulers)
     1    partial: some listing pages failed or some records did not pass validation
     2    failed: bad arguments, robots.txt unreachable or disallowing, site/browser error,
          no valid records, or an output file that could not be replaced (e.g. open in Excel)
-    130  interrupted (Ctrl+C)
+    130  interrupted (Ctrl+C); run_log.json then records status "interrupted"
 """
 
 from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import sys
 from pathlib import Path
 
@@ -56,15 +57,18 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--categories", metavar="N|NAMES",
                    help='number of categories (e.g. 5) or comma-separated names (e.g. "Travel,Poetry"). '
                         "Default: all")
-    p.add_argument("--max-pages", type=_positive_int, metavar="N", help="max listing pages per category")
+    p.add_argument("--max-pages", type=_positive_int, metavar="N",
+                   help="max listing pages per category (the reports then name the categories that had more)")
     p.add_argument("--concurrency", type=_positive_int, default=4,
-                   help="max browser pages at a time (default: 4; never more than the number of categories)")
+                   help="max browser pages at a time (default: 4; never more than the number of categories). "
+                        "A robots.txt Crawl-delay still limits page loads across all of them")
     p.add_argument("--delay", type=_non_negative_float, default=0.5, metavar="SECONDS",
                    help="polite delay after each page, per worker, plus jitter (default: 0.5). A robots.txt "
                         "Crawl-delay is enforced on top of it, across all workers")
     p.add_argument("--attempts", type=_positive_int, default=3, metavar="N",
                    help="tries per page, the first one included (default: 3 = up to 2 retries)")
-    p.add_argument("--headed", action="store_true", help="show the browser window (loads images too)")
+    p.add_argument("--headed", action="store_true",
+                   help="show the browser window (pages then load their images, styles and scripts too)")
     p.add_argument("--slow-mo", type=int, default=0, metavar="MS", help="slow down browser actions (debug)")
     p.add_argument("--out", type=Path, default=Path("output"), help="output folder (default: ./output)")
     p.add_argument("--base-url", default=CrawlSettings.base_url, metavar="URL",
@@ -107,6 +111,29 @@ def _fail(message: str, settings: RunSettings | None = None) -> int:
     return EXIT_FAILED
 
 
+def _count(n: int, one: str, many: str) -> str:
+    return f"{n} {one if n == 1 else many}"
+
+
+def summary_lines(run_log: dict, out_dir: str, sep: str = os.sep) -> list[str]:
+    """The lines printed at the end of a run (also shown in the README demo by scripts/record_demo.py)."""
+    rec, pages, cats = run_log["records"], run_log["pages"], run_log["categories"]
+    lines = ["", f"[{run_log['status'].upper()}] {_count(rec['exported'], 'product', 'products')}"
+                 f" · {_count(cats['crawled'], 'category', 'categories')}"
+                 f" · {_count(pages['ok'], 'page', 'pages')} · {pages['failed']} failed · {rec['invalid']} invalid"
+                 f" · {run_log['crawl_duration_s']:.1f} s"]
+    max_pages = run_log["settings"].get("max_pages")
+    if max_pages:  # a limited run: say it next to the numbers, not only in the files
+        stopped = len(cats.get("stopped_at_max_pages") or [])
+        tail = (f"{_count(stopped, 'category', 'categories')} not read to the end" if stopped
+                else "no category had more pages")
+        lines.append(f"  page limit: --max-pages {max_pages} ({tail})")
+    for key in ("xlsx", "csv", "pdf", "run_log"):
+        if key in run_log["outputs"]:
+            lines.append(f"  -> {out_dir}{sep}{run_log['outputs'][key]}")
+    return lines
+
+
 def main(argv: list[str] | None = None) -> int:
     # Windows consoles default to cp1252; keep £ and accents printable.
     for stream in (sys.stdout, sys.stderr):
@@ -138,15 +165,11 @@ def main(argv: list[str] | None = None) -> int:
         return _fail(f"robots.txt unavailable, refusing to crawl ({exc})", settings)
     except KeyboardInterrupt:
         print("interrupted", file=sys.stderr)
+        if (settings.out_dir / RUN_LOG_FILE).exists():
+            print(f"  details: {settings.out_dir / RUN_LOG_FILE}", file=sys.stderr)
         return EXIT_INTERRUPTED
     except Exception as exc:  # site down, browser missing, file locked...: one line, never a traceback
         return _fail(describe_error(exc), settings)
 
-    rec, pages = run_log["records"], run_log["pages"]
-    print(f"\n[{run_log['status'].upper()}] {rec['exported']} products · {run_log['categories']['crawled']} categories"
-          f" · {pages['ok']} pages · {pages['failed']} failed · {rec['invalid']} invalid"
-          f" · {run_log['crawl_duration_s']:.1f} s")
-    for key in ("xlsx", "csv", "pdf", "run_log"):
-        if key in run_log["outputs"]:
-            print(f"  -> {settings.out_dir / run_log['outputs'][key]}")
+    print("\n".join(summary_lines(run_log, str(settings.out_dir))))
     return {"success": EXIT_SUCCESS, "partial": EXIT_PARTIAL}.get(run_log["status"], EXIT_FAILED)

@@ -22,6 +22,7 @@ TABLE_STYLE = "TableStyleMedium2"
 TITLE_FONT = Font(size=14, bold=True, color="1F3864")
 NOTE_FONT = Font(size=9, italic=True, color="595959")
 DEMO_FILL = PatternFill("solid", fgColor="FCE4D6")
+LIMIT_FONT = Font(size=9, italic=True, color="C55A11")
 
 # A cell whose text starts with one of these is read as a formula by Excel/LibreOffice when a CSV is
 # opened ("CSV injection"). Scraped text is untrusted, so it must always stay plain text.
@@ -101,6 +102,9 @@ def write_xlsx(path: Path, books: list[Book], summary: list[CategorySummary],
     ws = wb.create_sheet("Summary")
     _sheet_header(ws, "Catalog summary by category",
                   f"DEMO data · source: {run_info['source']} · collected {run_info['collected_at']}")
+    if run_info.get("limit_note"):  # --max-pages: the Titles column only counts the pages read
+        ws["A3"] = f"Page limit: {run_info['limit_note']}"
+        ws["A3"].font = LIMIT_FONT
     headers = ["Category", "Titles", "Avg price", "Median price", "Min price", "Max price", "Avg rating",
                "In stock %", "Opportunities"]
     rows = [[s.category, s.titles, s.avg_price, s.median_price, s.min_price, s.max_price, s.avg_rating,
@@ -157,6 +161,12 @@ def write_xlsx(path: Path, books: list[Book], summary: list[CategorySummary],
         "randomly assigned and have no real meaning."))
     note.fill = DEMO_FILL
     note.alignment = Alignment(wrap_text=True)
+
+    # Open on Summary: its first lines say DEMO and where the data comes from. The Data sheet stays
+    # first in the tab order; only one tab may be selected, or Excel opens the two sheets grouped.
+    wb.active = wb.sheetnames.index("Summary")
+    for sheet in wb.worksheets:
+        sheet.sheet_view.tabSelected = sheet.title == "Summary"
 
     path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(path)

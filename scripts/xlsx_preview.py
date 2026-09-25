@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
 from pathlib import Path
 
@@ -219,7 +220,7 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{nam
   }}
   tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.sheet)));
   window.showSheet = show;
-  show(tabs[0].dataset.sheet);
+  show({active});  // the sheet the workbook opens on in Excel
 </script></body></html>"""
 
 
@@ -230,7 +231,7 @@ def render(xlsx: Path) -> str:
                    for ws in wb.worksheets)
     rows_total = max(wb.worksheets[0].max_row - 1, 0)
     return PAGE.format(name=html.escape(xlsx.name), sheets=sheets, tabs=tabs, sheets_count=len(wb.worksheets),
-                       rows_total=f"{rows_total:,}")
+                       rows_total=f"{rows_total:,}", active=json.dumps(wb.active.title))
 
 
 def main() -> None:

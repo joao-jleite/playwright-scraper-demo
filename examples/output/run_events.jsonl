@@ -1,0 +1,139 @@
+{"ts": "2026-09-25T07:30:38.537+00:00", "level": "INFO", "event": "run_start", "tool": "playwright-scraper-demo/1.0.0", "out": "examples\\output", "categories": "all"}
+{"ts": "2026-09-25T07:30:40.719+00:00", "level": "INFO", "event": "robots_checked", "status": 404, "rule": "no robots.txt (HTTP 404)"}
+{"ts": "2026-09-25T07:30:42.199+00:00", "level": "INFO", "event": "categories_found", "count": 50}
+{"ts": "2026-09-25T07:30:42.201+00:00", "level": "INFO", "event": "crawl_start", "categories": 50, "concurrency": 4, "delay_s": 0.5, "max_pages": "all"}
+{"ts": "2026-09-25T07:30:43.931+00:00", "level": "INFO", "event": "page_ok", "category": "Travel", "page": "1/1", "items": 11, "attempt": 1, "ms": 1561}
+{"ts": "2026-09-25T07:30:43.934+00:00", "level": "INFO", "event": "category_done", "category": "Travel", "pages": 1, "items": 11}
+{"ts": "2026-09-25T07:30:43.938+00:00", "level": "INFO", "event": "page_ok", "category": "Mystery", "page": "1/2", "items": 20, "attempt": 1, "ms": 1519}
+{"ts": "2026-09-25T07:30:44.021+00:00", "level": "INFO", "event": "page_ok", "category": "Historical Fiction", "page": "1/2", "items": 20, "attempt": 1, "ms": 1595}
+{"ts": "2026-09-25T07:30:44.050+00:00", "level": "INFO", "event": "page_ok", "category": "Sequential Art", "page": "1/4", "items": 20, "attempt": 1, "ms": 1598}
+{"ts": "2026-09-25T07:30:45.444+00:00", "level": "INFO", "event": "page_ok", "category": "Classics", "page": "1/1", "items": 19, "attempt": 1, "ms": 807}
+{"ts": "2026-09-25T07:30:45.444+00:00", "level": "INFO", "event": "category_done", "category": "Classics", "pages": 1, "items": 19}
+{"ts": "2026-09-25T07:30:45.445+00:00", "level": "INFO", "event": "page_ok", "category": "Romance", "page": "1/2", "items": 20, "attempt": 1, "ms": 742}
+{"ts": "2026-09-25T07:30:45.452+00:00", "level": "INFO", "event": "page_ok", "category": "Philosophy", "page": "1/1", "items": 11, "attempt": 1, "ms": 753}
+{"ts": "2026-09-25T07:30:45.453+00:00", "level": "INFO", "event": "category_done", "category": "Philosophy", "pages": 1, "items": 11}
+{"ts": "2026-09-25T07:30:45.521+00:00", "level": "INFO", "event": "page_ok", "category": "Womens Fiction", "page": "1/1", "items": 17, "attempt": 1, "ms": 817}
+{"ts": "2026-09-25T07:30:45.521+00:00", "level": "INFO", "event": "category_done", "category": "Womens Fiction", "pages": 1, "items": 17}
+{"ts": "2026-09-25T07:30:46.719+00:00", "level": "INFO", "event": "page_ok", "category": "Fiction", "page": "1/4", "items": 20, "attempt": 1, "ms": 751}
+{"ts": "2026-09-25T07:30:46.745+00:00", "level": "INFO", "event": "page_ok", "category": "Childrens", "page": "1/2", "items": 20, "attempt": 1, "ms": 745}
+{"ts": "2026-09-25T07:30:46.785+00:00", "level": "INFO", "event": "page_ok", "category": "Religion", "page": "1/1", "items": 7, "attempt": 1, "ms": 781}
+{"ts": "2026-09-25T07:30:46.786+00:00", "level": "INFO", "event": "category_done", "category": "Religion", "pages": 1, "items": 7}
+{"ts": "2026-09-25T07:30:46.835+00:00", "level": "INFO", "event": "page_ok", "category": "Nonfiction", "page": "1/6", "items": 20, "attempt": 1, "ms": 789}
+{"ts": "2026-09-25T07:30:48.208+00:00", "level": "INFO", "event": "page_ok", "category": "Music", "page": "1/1", "items": 13, "attempt": 1, "ms": 795}
+{"ts": "2026-09-25T07:30:48.209+00:00", "level": "INFO", "event": "category_done", "category": "Music", "pages": 1, "items": 13}
+{"ts": "2026-09-25T07:30:48.218+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "1/8", "items": 20, "attempt": 1, "ms": 798}
+{"ts": "2026-09-25T07:30:48.314+00:00", "level": "INFO", "event": "page_ok", "category": "Science Fiction", "page": "1/1", "items": 16, "attempt": 1, "ms": 838}
+{"ts": "2026-09-25T07:30:48.314+00:00", "level": "INFO", "event": "category_done", "category": "Science Fiction", "pages": 1, "items": 16}
+{"ts": "2026-09-25T07:30:48.351+00:00", "level": "INFO", "event": "page_ok", "category": "Sports and Games", "page": "1/1", "items": 5, "attempt": 1, "ms": 829}
+{"ts": "2026-09-25T07:30:48.351+00:00", "level": "INFO", "event": "category_done", "category": "Sports and Games", "pages": 1, "items": 5}
+{"ts": "2026-09-25T07:30:49.653+00:00", "level": "INFO", "event": "page_ok", "category": "Add a comment", "page": "1/4", "items": 20, "attempt": 1, "ms": 811}
+{"ts": "2026-09-25T07:30:49.666+00:00", "level": "INFO", "event": "page_ok", "category": "Fantasy", "page": "1/3", "items": 20, "attempt": 1, "ms": 745}
+{"ts": "2026-09-25T07:30:49.711+00:00", "level": "INFO", "event": "page_ok", "category": "New Adult", "page": "1/1", "items": 6, "attempt": 1, "ms": 786}
+{"ts": "2026-09-25T07:30:49.711+00:00", "level": "INFO", "event": "category_done", "category": "New Adult", "pages": 1, "items": 6}
+{"ts": "2026-09-25T07:30:49.771+00:00", "level": "INFO", "event": "page_ok", "category": "Young Adult", "page": "1/3", "items": 20, "attempt": 1, "ms": 837}
+{"ts": "2026-09-25T07:30:51.002+00:00", "level": "INFO", "event": "page_ok", "category": "Science", "page": "1/1", "items": 14, "attempt": 1, "ms": 690}
+{"ts": "2026-09-25T07:30:51.002+00:00", "level": "INFO", "event": "category_done", "category": "Science", "pages": 1, "items": 14}
+{"ts": "2026-09-25T07:30:51.004+00:00", "level": "INFO", "event": "page_ok", "category": "Poetry", "page": "1/1", "items": 19, "attempt": 1, "ms": 615}
+{"ts": "2026-09-25T07:30:51.005+00:00", "level": "INFO", "event": "category_done", "category": "Poetry", "pages": 1, "items": 19}
+{"ts": "2026-09-25T07:30:51.032+00:00", "level": "INFO", "event": "page_ok", "category": "Paranormal", "page": "1/1", "items": 1, "attempt": 1, "ms": 611}
+{"ts": "2026-09-25T07:30:51.032+00:00", "level": "INFO", "event": "category_done", "category": "Paranormal", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:30:51.124+00:00", "level": "INFO", "event": "page_ok", "category": "Art", "page": "1/1", "items": 8, "attempt": 1, "ms": 700}
+{"ts": "2026-09-25T07:30:51.124+00:00", "level": "INFO", "event": "category_done", "category": "Art", "pages": 1, "items": 8}
+{"ts": "2026-09-25T07:30:52.443+00:00", "level": "INFO", "event": "page_ok", "category": "Psychology", "page": "1/1", "items": 7, "attempt": 1, "ms": 922}
+{"ts": "2026-09-25T07:30:52.443+00:00", "level": "INFO", "event": "category_done", "category": "Psychology", "pages": 1, "items": 7}
+{"ts": "2026-09-25T07:30:52.471+00:00", "level": "INFO", "event": "page_ok", "category": "Autobiography", "page": "1/1", "items": 9, "attempt": 1, "ms": 811}
+{"ts": "2026-09-25T07:30:52.471+00:00", "level": "INFO", "event": "category_done", "category": "Autobiography", "pages": 1, "items": 9}
+{"ts": "2026-09-25T07:30:52.582+00:00", "level": "INFO", "event": "page_ok", "category": "Parenting", "page": "1/1", "items": 1, "attempt": 1, "ms": 919}
+{"ts": "2026-09-25T07:30:52.582+00:00", "level": "INFO", "event": "category_done", "category": "Parenting", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:30:52.677+00:00", "level": "INFO", "event": "page_ok", "category": "Adult Fiction", "page": "1/1", "items": 1, "attempt": 1, "ms": 860}
+{"ts": "2026-09-25T07:30:52.678+00:00", "level": "INFO", "event": "category_done", "category": "Adult Fiction", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:30:53.857+00:00", "level": "INFO", "event": "page_ok", "category": "Humor", "page": "1/1", "items": 10, "attempt": 1, "ms": 818}
+{"ts": "2026-09-25T07:30:53.857+00:00", "level": "INFO", "event": "category_done", "category": "Humor", "pages": 1, "items": 10}
+{"ts": "2026-09-25T07:30:53.957+00:00", "level": "INFO", "event": "page_ok", "category": "Horror", "page": "1/1", "items": 17, "attempt": 1, "ms": 855}
+{"ts": "2026-09-25T07:30:53.959+00:00", "level": "INFO", "event": "category_done", "category": "Horror", "pages": 1, "items": 17}
+{"ts": "2026-09-25T07:30:53.995+00:00", "level": "INFO", "event": "page_ok", "category": "History", "page": "1/1", "items": 18, "attempt": 1, "ms": 756}
+{"ts": "2026-09-25T07:30:53.995+00:00", "level": "INFO", "event": "category_done", "category": "History", "pages": 1, "items": 18}
+{"ts": "2026-09-25T07:30:54.075+00:00", "level": "INFO", "event": "page_ok", "category": "Food and Drink", "page": "1/2", "items": 20, "attempt": 1, "ms": 825}
+{"ts": "2026-09-25T07:30:56.615+00:00", "level": "INFO", "event": "page_ok", "category": "Christian Fiction", "page": "1/1", "items": 6, "attempt": 1, "ms": 2195}
+{"ts": "2026-09-25T07:30:56.616+00:00", "level": "INFO", "event": "category_done", "category": "Christian Fiction", "pages": 1, "items": 6}
+{"ts": "2026-09-25T07:30:56.619+00:00", "level": "INFO", "event": "page_ok", "category": "Business", "page": "1/1", "items": 12, "attempt": 1, "ms": 2152}
+{"ts": "2026-09-25T07:30:56.619+00:00", "level": "INFO", "event": "category_done", "category": "Business", "pages": 1, "items": 12}
+{"ts": "2026-09-25T07:30:56.628+00:00", "level": "INFO", "event": "page_ok", "category": "Biography", "page": "1/1", "items": 5, "attempt": 1, "ms": 1951}
+{"ts": "2026-09-25T07:30:56.628+00:00", "level": "INFO", "event": "category_done", "category": "Biography", "pages": 1, "items": 5}
+{"ts": "2026-09-25T07:30:56.649+00:00", "level": "INFO", "event": "page_ok", "category": "Thriller", "page": "1/1", "items": 11, "attempt": 1, "ms": 1906}
+{"ts": "2026-09-25T07:30:56.650+00:00", "level": "INFO", "event": "category_done", "category": "Thriller", "pages": 1, "items": 11}
+{"ts": "2026-09-25T07:30:58.247+00:00", "level": "INFO", "event": "page_ok", "category": "Contemporary", "page": "1/1", "items": 3, "attempt": 1, "ms": 1029}
+{"ts": "2026-09-25T07:30:58.247+00:00", "level": "INFO", "event": "category_done", "category": "Contemporary", "pages": 1, "items": 3}
+{"ts": "2026-09-25T07:30:58.249+00:00", "level": "INFO", "event": "page_ok", "category": "Spirituality", "page": "1/1", "items": 6, "attempt": 1, "ms": 1019}
+{"ts": "2026-09-25T07:30:58.249+00:00", "level": "INFO", "event": "category_done", "category": "Spirituality", "pages": 1, "items": 6}
+{"ts": "2026-09-25T07:30:58.324+00:00", "level": "INFO", "event": "page_ok", "category": "Academic", "page": "1/1", "items": 1, "attempt": 1, "ms": 1017}
+{"ts": "2026-09-25T07:30:58.324+00:00", "level": "INFO", "event": "category_done", "category": "Academic", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:30:58.346+00:00", "level": "INFO", "event": "page_ok", "category": "Self Help", "page": "1/1", "items": 5, "attempt": 1, "ms": 1019}
+{"ts": "2026-09-25T07:30:58.346+00:00", "level": "INFO", "event": "category_done", "category": "Self Help", "pages": 1, "items": 5}
+{"ts": "2026-09-25T07:31:00.062+00:00", "level": "INFO", "event": "page_ok", "category": "Historical", "page": "1/1", "items": 2, "attempt": 1, "ms": 1265}
+{"ts": "2026-09-25T07:31:00.063+00:00", "level": "INFO", "event": "category_done", "category": "Historical", "pages": 1, "items": 2}
+{"ts": "2026-09-25T07:31:00.088+00:00", "level": "INFO", "event": "page_ok", "category": "Christian", "page": "1/1", "items": 3, "attempt": 1, "ms": 1209}
+{"ts": "2026-09-25T07:31:00.088+00:00", "level": "INFO", "event": "category_done", "category": "Christian", "pages": 1, "items": 3}
+{"ts": "2026-09-25T07:31:00.131+00:00", "level": "INFO", "event": "page_ok", "category": "Suspense", "page": "1/1", "items": 1, "attempt": 1, "ms": 1236}
+{"ts": "2026-09-25T07:31:00.131+00:00", "level": "INFO", "event": "category_done", "category": "Suspense", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:31:00.149+00:00", "level": "INFO", "event": "page_ok", "category": "Short Stories", "page": "1/1", "items": 1, "attempt": 1, "ms": 1241}
+{"ts": "2026-09-25T07:31:00.150+00:00", "level": "INFO", "event": "category_done", "category": "Short Stories", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:31:02.461+00:00", "level": "INFO", "event": "page_ok", "category": "Novels", "page": "1/1", "items": 1, "attempt": 1, "ms": 1795}
+{"ts": "2026-09-25T07:31:02.462+00:00", "level": "INFO", "event": "category_done", "category": "Novels", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:31:02.524+00:00", "level": "INFO", "event": "page_ok", "category": "Health", "page": "1/1", "items": 4, "attempt": 1, "ms": 1795}
+{"ts": "2026-09-25T07:31:02.525+00:00", "level": "INFO", "event": "category_done", "category": "Health", "pages": 1, "items": 4}
+{"ts": "2026-09-25T07:31:02.530+00:00", "level": "INFO", "event": "page_ok", "category": "Politics", "page": "1/1", "items": 3, "attempt": 1, "ms": 1780}
+{"ts": "2026-09-25T07:31:02.531+00:00", "level": "INFO", "event": "category_done", "category": "Politics", "pages": 1, "items": 3}
+{"ts": "2026-09-25T07:31:02.653+00:00", "level": "INFO", "event": "page_ok", "category": "Cultural", "page": "1/1", "items": 1, "attempt": 1, "ms": 1893}
+{"ts": "2026-09-25T07:31:02.654+00:00", "level": "INFO", "event": "category_done", "category": "Cultural", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:31:05.240+00:00", "level": "INFO", "event": "page_ok", "category": "Crime", "page": "1/1", "items": 1, "attempt": 1, "ms": 1995}
+{"ts": "2026-09-25T07:31:05.241+00:00", "level": "INFO", "event": "category_done", "category": "Crime", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:31:05.241+00:00", "level": "INFO", "event": "page_ok", "category": "Erotica", "page": "1/1", "items": 1, "attempt": 1, "ms": 2164}
+{"ts": "2026-09-25T07:31:05.241+00:00", "level": "INFO", "event": "category_done", "category": "Erotica", "pages": 1, "items": 1}
+{"ts": "2026-09-25T07:31:05.271+00:00", "level": "INFO", "event": "page_ok", "category": "Mystery", "page": "2/2", "items": 12, "attempt": 1, "ms": 1982}
+{"ts": "2026-09-25T07:31:05.272+00:00", "level": "INFO", "event": "category_done", "category": "Mystery", "pages": 2, "items": 32}
+{"ts": "2026-09-25T07:31:05.389+00:00", "level": "INFO", "event": "page_ok", "category": "Historical Fiction", "page": "2/2", "items": 6, "attempt": 1, "ms": 2001}
+{"ts": "2026-09-25T07:31:05.390+00:00", "level": "INFO", "event": "category_done", "category": "Historical Fiction", "pages": 2, "items": 26}
+{"ts": "2026-09-25T07:31:07.572+00:00", "level": "INFO", "event": "page_ok", "category": "Sequential Art", "page": "2/4", "items": 20, "attempt": 1, "ms": 1800}
+{"ts": "2026-09-25T07:31:07.572+00:00", "level": "INFO", "event": "page_ok", "category": "Romance", "page": "2/2", "items": 15, "attempt": 1, "ms": 1769}
+{"ts": "2026-09-25T07:31:07.572+00:00", "level": "INFO", "event": "category_done", "category": "Romance", "pages": 2, "items": 35}
+{"ts": "2026-09-25T07:31:07.776+00:00", "level": "INFO", "event": "page_ok", "category": "Fiction", "page": "2/4", "items": 20, "attempt": 1, "ms": 1848}
+{"ts": "2026-09-25T07:31:07.836+00:00", "level": "INFO", "event": "page_ok", "category": "Childrens", "page": "2/2", "items": 9, "attempt": 1, "ms": 1844}
+{"ts": "2026-09-25T07:31:07.838+00:00", "level": "INFO", "event": "category_done", "category": "Childrens", "pages": 2, "items": 29}
+{"ts": "2026-09-25T07:31:10.725+00:00", "level": "INFO", "event": "page_ok", "category": "Nonfiction", "page": "2/6", "items": 20, "attempt": 1, "ms": 2520}
+{"ts": "2026-09-25T07:31:10.726+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "2/8", "items": 20, "attempt": 1, "ms": 2458}
+{"ts": "2026-09-25T07:31:10.835+00:00", "level": "INFO", "event": "page_ok", "category": "Add a comment", "page": "2/4", "items": 20, "attempt": 1, "ms": 2475}
+{"ts": "2026-09-25T07:31:10.873+00:00", "level": "INFO", "event": "page_ok", "category": "Fantasy", "page": "2/3", "items": 20, "attempt": 1, "ms": 2430}
+{"ts": "2026-09-25T07:31:12.795+00:00", "level": "INFO", "event": "page_ok", "category": "Food and Drink", "page": "2/2", "items": 10, "attempt": 1, "ms": 1427}
+{"ts": "2026-09-25T07:31:12.796+00:00", "level": "INFO", "event": "category_done", "category": "Food and Drink", "pages": 2, "items": 30}
+{"ts": "2026-09-25T07:31:12.826+00:00", "level": "INFO", "event": "page_ok", "category": "Young Adult", "page": "2/3", "items": 20, "attempt": 1, "ms": 1459}
+{"ts": "2026-09-25T07:31:12.963+00:00", "level": "INFO", "event": "page_ok", "category": "Sequential Art", "page": "3/4", "items": 20, "attempt": 1, "ms": 1517}
+{"ts": "2026-09-25T07:31:12.971+00:00", "level": "INFO", "event": "page_ok", "category": "Fiction", "page": "3/4", "items": 20, "attempt": 1, "ms": 1506}
+{"ts": "2026-09-25T07:31:14.371+00:00", "level": "INFO", "event": "page_ok", "category": "Nonfiction", "page": "3/6", "items": 20, "attempt": 1, "ms": 941}
+{"ts": "2026-09-25T07:31:14.380+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "3/8", "items": 20, "attempt": 1, "ms": 874}
+{"ts": "2026-09-25T07:31:14.537+00:00", "level": "INFO", "event": "page_ok", "category": "Fantasy", "page": "3/3", "items": 8, "attempt": 1, "ms": 929}
+{"ts": "2026-09-25T07:31:14.537+00:00", "level": "INFO", "event": "category_done", "category": "Fantasy", "pages": 3, "items": 48}
+{"ts": "2026-09-25T07:31:14.539+00:00", "level": "INFO", "event": "page_ok", "category": "Add a comment", "page": "3/4", "items": 20, "attempt": 1, "ms": 1026}
+{"ts": "2026-09-25T07:31:15.841+00:00", "level": "INFO", "event": "page_ok", "category": "Young Adult", "page": "3/3", "items": 14, "attempt": 1, "ms": 898}
+{"ts": "2026-09-25T07:31:15.841+00:00", "level": "INFO", "event": "category_done", "category": "Young Adult", "pages": 3, "items": 54}
+{"ts": "2026-09-25T07:31:15.955+00:00", "level": "INFO", "event": "page_ok", "category": "Sequential Art", "page": "4/4", "items": 15, "attempt": 1, "ms": 856}
+{"ts": "2026-09-25T07:31:15.955+00:00", "level": "INFO", "event": "category_done", "category": "Sequential Art", "pages": 4, "items": 75}
+{"ts": "2026-09-25T07:31:15.983+00:00", "level": "INFO", "event": "page_ok", "category": "Fiction", "page": "4/4", "items": 5, "attempt": 1, "ms": 869}
+{"ts": "2026-09-25T07:31:15.983+00:00", "level": "INFO", "event": "category_done", "category": "Fiction", "pages": 4, "items": 65}
+{"ts": "2026-09-25T07:31:16.052+00:00", "level": "INFO", "event": "page_ok", "category": "Nonfiction", "page": "4/6", "items": 20, "attempt": 1, "ms": 926}
+{"ts": "2026-09-25T07:31:17.196+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "4/8", "items": 20, "attempt": 1, "ms": 829}
+{"ts": "2026-09-25T07:31:17.656+00:00", "level": "INFO", "event": "page_ok", "category": "Add a comment", "page": "4/4", "items": 7, "attempt": 1, "ms": 1097}
+{"ts": "2026-09-25T07:31:17.656+00:00", "level": "INFO", "event": "category_done", "category": "Add a comment", "pages": 4, "items": 67}
+{"ts": "2026-09-25T07:31:17.682+00:00", "level": "INFO", "event": "page_ok", "category": "Nonfiction", "page": "5/6", "items": 20, "attempt": 1, "ms": 1120}
+{"ts": "2026-09-25T07:31:17.860+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "5/8", "items": 20, "attempt": 1, "ms": 663}
+{"ts": "2026-09-25T07:31:18.511+00:00", "level": "INFO", "event": "page_ok", "category": "Nonfiction", "page": "6/6", "items": 10, "attempt": 1, "ms": 687}
+{"ts": "2026-09-25T07:31:18.511+00:00", "level": "INFO", "event": "category_done", "category": "Nonfiction", "pages": 6, "items": 110}
+{"ts": "2026-09-25T07:31:19.802+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "6/8", "items": 20, "attempt": 1, "ms": 1538}
+{"ts": "2026-09-25T07:31:21.041+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "7/8", "items": 20, "attempt": 1, "ms": 1236}
+{"ts": "2026-09-25T07:31:21.839+00:00", "level": "INFO", "event": "page_ok", "category": "Default", "page": "8/8", "items": 12, "attempt": 1, "ms": 797}
+{"ts": "2026-09-25T07:31:21.840+00:00", "level": "INFO", "event": "category_done", "category": "Default", "pages": 8, "items": 152}
+{"ts": "2026-09-25T07:31:22.331+00:00", "level": "INFO", "event": "output_written", "file": "books.csv", "rows": 1000}
+{"ts": "2026-09-25T07:31:23.184+00:00", "level": "INFO", "event": "output_written", "file": "books.xlsx", "sheets": "Data,Summary,Opportunities,Run Info"}
+{"ts": "2026-09-25T07:31:23.616+00:00", "level": "INFO", "event": "output_written", "file": "report.pdf", "pages": 3}
+{"ts": "2026-09-25T07:31:23.672+00:00", "level": "INFO", "event": "output_written", "file": "run_log.json", "status": "success"}
+{"ts": "2026-09-25T07:31:23.672+00:00", "level": "INFO", "event": "run_done", "status": "success", "products": 1000, "pages": 80, "errors": 0, "seconds": 42.0}

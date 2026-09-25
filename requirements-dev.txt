@@ -1,0 +1,7 @@
+-r requirements.txt
+pytest>=8
+# Only needed to rebuild the README media (scripts/record_demo.py, scripts/build_media.py)
+imageio>=2.34
+imageio-ffmpeg>=0.5
+pillow>=10
+numpy>=1.26

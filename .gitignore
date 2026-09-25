@@ -1,0 +1,29 @@
+# Secrets / local env
+.env
+.env.*
+*.pem
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Scraper runs. Anchored to the repo root on purpose: the committed sample
+# lives in examples/output/ and must NOT be matched by "output/".
+/output/
+/demo_out/
+/tmp/
+/media_build/
+*.webm
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -23,6 +23,17 @@ TITLE_FONT = Font(size=14, bold=True, color="1F3864")
 NOTE_FONT = Font(size=9, italic=True, color="595959")
 DEMO_FILL = PatternFill("solid", fgColor="FCE4D6")
 
+# A cell whose text starts with one of these is read as a formula by Excel/LibreOffice when a CSV is
+# opened ("CSV injection"). Scraped text is untrusted, so it must always stay plain text.
+FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def csv_safe(value: Any) -> Any:
+    """CSV has no cell types: prefix risky text with an apostrophe so spreadsheets show it as text."""
+    if isinstance(value, str) and value.startswith(FORMULA_PREFIXES):
+        return "'" + value
+    return value
+
 
 def _add_table(ws: Worksheet, name: str, header_row: int, n_rows: int, n_cols: int) -> None:
     """Wrap a block in an Excel Table: banded rows + filter buttons on every header."""
@@ -45,6 +56,10 @@ def _write_block(ws: Worksheet, start_row: int, headers: Sequence[str],
         r = start_row + n
         for c, value in enumerate(row, start=1):
             cell = ws.cell(row=r, column=c, value=value)
+            if cell.data_type == "f":
+                # openpyxl turns any string starting with "=" into a live formula. Scraped text never
+                # is one: store it as a string cell, shown exactly as scraped.
+                cell.data_type = "s"
             if c in formats:
                 cell.number_format = formats[c]
             if link_col == c and value:

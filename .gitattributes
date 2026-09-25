@@ -1,0 +1,7 @@
+# The sample output is committed exactly as the scraper wrote it (no line-ending conversion).
+examples/output/** -text
+*.png binary
+*.gif binary
+*.mp4 binary
+*.pdf binary
+*.xlsx binary

@@ -1,29 +1,33 @@
 {
   "tool": "playwright-scraper-demo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "success",
-  "started_at": "2026-09-25T07:30:39+00:00",
-  "finished_at": "2026-09-25T07:31:23+00:00",
-  "crawl_duration_s": 41.98,
-  "total_duration_s": 45.08,
+  "started_at": "2026-09-25T15:52:51+00:00",
+  "finished_at": "2026-09-25T15:53:21+00:00",
+  "crawl_duration_s": 28.64,
+  "total_duration_s": 31.01,
   "settings": {
     "base_url": "https://books.toscrape.com/",
     "concurrency": 4,
     "delay_s": 0.5,
     "max_pages": null,
-    "retries": 3,
+    "attempts": 3,
     "backoff_base_s": 1.0,
     "nav_timeout_ms": 20000,
     "block_assets": true,
     "wait_until": "domcontentloaded",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0 Safari/537.36 playwright-scraper-demo/1.0.0 (+https://github.com/joao-jleite/playwright-scraper-demo)",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0 Safari/537.36 playwright-scraper-demo/1.1.0 (+https://github.com/joao-jleite/playwright-scraper-demo)",
     "categories_arg": null,
-    "headed": false
+    "headed": false,
+    "workers_used": 4
   },
   "robots_txt": {
     "url": "https://books.toscrape.com/robots.txt",
     "http_status": 404,
     "summary": "no robots.txt (HTTP 404): no path restrictions (RFC 9309 2.3.1.3)",
+    "product_token": "playwright-scraper-demo",
+    "group_applied": "none",
+    "rules": 0,
     "crawl_delay_s": null
   },
   "categories": {
@@ -143,7 +147,7 @@
       "valid": 11,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1561,
+      "elapsed_ms": 915,
       "error": null
     },
     {
@@ -157,7 +161,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1519,
+      "elapsed_ms": 898,
       "error": null
     },
     {
@@ -171,7 +175,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1595,
+      "elapsed_ms": 915,
       "error": null
     },
     {
@@ -185,7 +189,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1598,
+      "elapsed_ms": 989,
       "error": null
     },
     {
@@ -199,21 +203,7 @@
       "valid": 19,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 807,
-      "error": null
-    },
-    {
-      "category": "Romance",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/romance_8/index.html",
-      "status": "ok",
-      "total_pages": 2,
-      "http_status": 200,
-      "items": 20,
-      "valid": 20,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 742,
+      "elapsed_ms": 950,
       "error": null
     },
     {
@@ -227,7 +217,7 @@
       "valid": 11,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 753,
+      "elapsed_ms": 917,
       "error": null
     },
     {
@@ -241,7 +231,21 @@
       "valid": 17,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 817,
+      "elapsed_ms": 827,
+      "error": null
+    },
+    {
+      "category": "Romance",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/romance_8/index.html",
+      "status": "ok",
+      "total_pages": 2,
+      "http_status": 200,
+      "items": 20,
+      "valid": 20,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 948,
       "error": null
     },
     {
@@ -255,21 +259,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 751,
-      "error": null
-    },
-    {
-      "category": "Childrens",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/childrens_11/index.html",
-      "status": "ok",
-      "total_pages": 2,
-      "http_status": 200,
-      "items": 20,
-      "valid": 20,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 745,
+      "elapsed_ms": 1174,
       "error": null
     },
     {
@@ -283,7 +273,21 @@
       "valid": 7,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 781,
+      "elapsed_ms": 1067,
+      "error": null
+    },
+    {
+      "category": "Childrens",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/childrens_11/index.html",
+      "status": "ok",
+      "total_pages": 2,
+      "http_status": 200,
+      "items": 20,
+      "valid": 20,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 1084,
       "error": null
     },
     {
@@ -297,7 +301,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 789,
+      "elapsed_ms": 948,
       "error": null
     },
     {
@@ -311,7 +315,7 @@
       "valid": 13,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 795,
+      "elapsed_ms": 749,
       "error": null
     },
     {
@@ -325,21 +329,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 798,
-      "error": null
-    },
-    {
-      "category": "Science Fiction",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/science-fiction_16/index.html",
-      "status": "ok",
-      "total_pages": null,
-      "http_status": 200,
-      "items": 16,
-      "valid": 16,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 838,
+      "elapsed_ms": 745,
       "error": null
     },
     {
@@ -353,7 +343,21 @@
       "valid": 5,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 829,
+      "elapsed_ms": 751,
+      "error": null
+    },
+    {
+      "category": "Science Fiction",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/science-fiction_16/index.html",
+      "status": "ok",
+      "total_pages": null,
+      "http_status": 200,
+      "items": 16,
+      "valid": 16,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 806,
       "error": null
     },
     {
@@ -367,7 +371,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 811,
+      "elapsed_ms": 957,
       "error": null
     },
     {
@@ -381,7 +385,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 745,
+      "elapsed_ms": 934,
       "error": null
     },
     {
@@ -395,7 +399,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 786,
+      "elapsed_ms": 905,
       "error": null
     },
     {
@@ -409,7 +413,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 837,
+      "elapsed_ms": 786,
       "error": null
     },
     {
@@ -423,7 +427,7 @@
       "valid": 14,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 690,
+      "elapsed_ms": 586,
       "error": null
     },
     {
@@ -437,7 +441,7 @@
       "valid": 19,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 615,
+      "elapsed_ms": 539,
       "error": null
     },
     {
@@ -451,7 +455,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 611,
+      "elapsed_ms": 578,
       "error": null
     },
     {
@@ -465,7 +469,7 @@
       "valid": 8,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 700,
+      "elapsed_ms": 508,
       "error": null
     },
     {
@@ -479,7 +483,7 @@
       "valid": 7,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 922,
+      "elapsed_ms": 500,
       "error": null
     },
     {
@@ -493,7 +497,7 @@
       "valid": 9,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 811,
+      "elapsed_ms": 529,
       "error": null
     },
     {
@@ -507,7 +511,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 919,
+      "elapsed_ms": 550,
       "error": null
     },
     {
@@ -521,7 +525,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 860,
+      "elapsed_ms": 503,
       "error": null
     },
     {
@@ -535,7 +539,7 @@
       "valid": 10,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 818,
+      "elapsed_ms": 879,
       "error": null
     },
     {
@@ -549,7 +553,7 @@
       "valid": 17,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 855,
+      "elapsed_ms": 784,
       "error": null
     },
     {
@@ -563,7 +567,7 @@
       "valid": 18,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 756,
+      "elapsed_ms": 732,
       "error": null
     },
     {
@@ -577,7 +581,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 825,
+      "elapsed_ms": 743,
       "error": null
     },
     {
@@ -591,7 +595,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2195,
+      "elapsed_ms": 562,
       "error": null
     },
     {
@@ -605,7 +609,7 @@
       "valid": 12,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2152,
+      "elapsed_ms": 561,
       "error": null
     },
     {
@@ -619,7 +623,7 @@
       "valid": 5,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1951,
+      "elapsed_ms": 603,
       "error": null
     },
     {
@@ -633,7 +637,7 @@
       "valid": 11,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1906,
+      "elapsed_ms": 569,
       "error": null
     },
     {
@@ -647,7 +651,7 @@
       "valid": 3,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1029,
+      "elapsed_ms": 498,
       "error": null
     },
     {
@@ -661,7 +665,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1019,
+      "elapsed_ms": 613,
       "error": null
     },
     {
@@ -675,7 +679,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1017,
+      "elapsed_ms": 548,
       "error": null
     },
     {
@@ -689,7 +693,7 @@
       "valid": 5,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1019,
+      "elapsed_ms": 538,
       "error": null
     },
     {
@@ -703,7 +707,7 @@
       "valid": 2,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1265,
+      "elapsed_ms": 692,
       "error": null
     },
     {
@@ -717,7 +721,7 @@
       "valid": 3,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1209,
+      "elapsed_ms": 599,
       "error": null
     },
     {
@@ -731,7 +735,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1236,
+      "elapsed_ms": 628,
       "error": null
     },
     {
@@ -745,7 +749,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1241,
+      "elapsed_ms": 534,
       "error": null
     },
     {
@@ -759,7 +763,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1795,
+      "elapsed_ms": 487,
       "error": null
     },
     {
@@ -773,7 +777,7 @@
       "valid": 4,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1795,
+      "elapsed_ms": 518,
       "error": null
     },
     {
@@ -787,7 +791,7 @@
       "valid": 3,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1780,
+      "elapsed_ms": 485,
       "error": null
     },
     {
@@ -801,21 +805,7 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1893,
-      "error": null
-    },
-    {
-      "category": "Crime",
-      "page_no": 1,
-      "url": "https://books.toscrape.com/catalogue/category/books/crime_51/index.html",
-      "status": "ok",
-      "total_pages": null,
-      "http_status": 200,
-      "items": 1,
-      "valid": 1,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 1995,
+      "elapsed_ms": 493,
       "error": null
     },
     {
@@ -829,7 +819,21 @@
       "valid": 1,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2164,
+      "elapsed_ms": 477,
+      "error": null
+    },
+    {
+      "category": "Crime",
+      "page_no": 1,
+      "url": "https://books.toscrape.com/catalogue/category/books/crime_51/index.html",
+      "status": "ok",
+      "total_pages": null,
+      "http_status": 200,
+      "items": 1,
+      "valid": 1,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 528,
       "error": null
     },
     {
@@ -843,7 +847,7 @@
       "valid": 12,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1982,
+      "elapsed_ms": 527,
       "error": null
     },
     {
@@ -857,7 +861,7 @@
       "valid": 6,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2001,
+      "elapsed_ms": 526,
       "error": null
     },
     {
@@ -871,7 +875,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1800,
+      "elapsed_ms": 738,
       "error": null
     },
     {
@@ -885,7 +889,7 @@
       "valid": 15,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1769,
+      "elapsed_ms": 630,
       "error": null
     },
     {
@@ -899,7 +903,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1848,
+      "elapsed_ms": 704,
       "error": null
     },
     {
@@ -913,7 +917,7 @@
       "valid": 9,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1844,
+      "elapsed_ms": 597,
       "error": null
     },
     {
@@ -927,7 +931,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2520,
+      "elapsed_ms": 863,
       "error": null
     },
     {
@@ -941,7 +945,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2458,
+      "elapsed_ms": 861,
       "error": null
     },
     {
@@ -955,7 +959,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2475,
+      "elapsed_ms": 818,
       "error": null
     },
     {
@@ -969,21 +973,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 2430,
-      "error": null
-    },
-    {
-      "category": "Food and Drink",
-      "page_no": 2,
-      "url": "https://books.toscrape.com/catalogue/category/books/food-and-drink_33/page-2.html",
-      "status": "ok",
-      "total_pages": 2,
-      "http_status": 200,
-      "items": 10,
-      "valid": 10,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 1427,
+      "elapsed_ms": 748,
       "error": null
     },
     {
@@ -997,7 +987,21 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1459,
+      "elapsed_ms": 704,
+      "error": null
+    },
+    {
+      "category": "Food and Drink",
+      "page_no": 2,
+      "url": "https://books.toscrape.com/catalogue/category/books/food-and-drink_33/page-2.html",
+      "status": "ok",
+      "total_pages": 2,
+      "http_status": 200,
+      "items": 10,
+      "valid": 10,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 683,
       "error": null
     },
     {
@@ -1011,7 +1015,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1517,
+      "elapsed_ms": 693,
       "error": null
     },
     {
@@ -1025,7 +1029,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1506,
+      "elapsed_ms": 654,
       "error": null
     },
     {
@@ -1039,7 +1043,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 941,
+      "elapsed_ms": 772,
       "error": null
     },
     {
@@ -1053,21 +1057,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 874,
-      "error": null
-    },
-    {
-      "category": "Fantasy",
-      "page_no": 3,
-      "url": "https://books.toscrape.com/catalogue/category/books/fantasy_19/page-3.html",
-      "status": "ok",
-      "total_pages": 3,
-      "http_status": 200,
-      "items": 8,
-      "valid": 8,
-      "invalid": 0,
-      "attempts": 1,
-      "elapsed_ms": 929,
+      "elapsed_ms": 785,
       "error": null
     },
     {
@@ -1081,7 +1071,21 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1026,
+      "elapsed_ms": 747,
+      "error": null
+    },
+    {
+      "category": "Fantasy",
+      "page_no": 3,
+      "url": "https://books.toscrape.com/catalogue/category/books/fantasy_19/page-3.html",
+      "status": "ok",
+      "total_pages": 3,
+      "http_status": 200,
+      "items": 8,
+      "valid": 8,
+      "invalid": 0,
+      "attempts": 1,
+      "elapsed_ms": 751,
       "error": null
     },
     {
@@ -1095,7 +1099,7 @@
       "valid": 14,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 898,
+      "elapsed_ms": 693,
       "error": null
     },
     {
@@ -1109,7 +1113,7 @@
       "valid": 15,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 856,
+      "elapsed_ms": 693,
       "error": null
     },
     {
@@ -1123,7 +1127,7 @@
       "valid": 5,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 869,
+      "elapsed_ms": 691,
       "error": null
     },
     {
@@ -1137,7 +1141,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 926,
+      "elapsed_ms": 637,
       "error": null
     },
     {
@@ -1151,7 +1155,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 829,
+      "elapsed_ms": 599,
       "error": null
     },
     {
@@ -1165,7 +1169,7 @@
       "valid": 7,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1097,
+      "elapsed_ms": 658,
       "error": null
     },
     {
@@ -1179,7 +1183,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1120,
+      "elapsed_ms": 620,
       "error": null
     },
     {
@@ -1193,7 +1197,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 663,
+      "elapsed_ms": 452,
       "error": null
     },
     {
@@ -1207,7 +1211,7 @@
       "valid": 10,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 687,
+      "elapsed_ms": 480,
       "error": null
     },
     {
@@ -1221,7 +1225,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1538,
+      "elapsed_ms": 551,
       "error": null
     },
     {
@@ -1235,7 +1239,7 @@
       "valid": 20,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 1236,
+      "elapsed_ms": 505,
       "error": null
     },
     {
@@ -1249,7 +1253,7 @@
       "valid": 12,
       "invalid": 0,
       "attempts": 1,
-      "elapsed_ms": 797,
+      "elapsed_ms": 475,
       "error": null
     }
   ]

@@ -10,14 +10,20 @@ RAW = {"title": "A Book", "url": "https://books.toscrape.com/catalogue/a_1/index
        "price": "£51.77", "availability": "\n   In stock\n ", "rating": "star-rating Four"}
 
 
-@pytest.mark.parametrize("text,expected", [("£51.77", 51.77), ("Â£10.00", 10.0), ("12,50", 12.5), (7, 7.0)])
+@pytest.mark.parametrize("text,expected", [
+    ("£51.77", 51.77), ("Â£10.00", 10.0), ("12,50", 12.5), (7, 7.0),
+    # thousands separators: the old regex read "£1,234.56" as 1.23
+    ("£1,234.56", 1234.56), ("1.234,56 €", 1234.56), ("£1,234", 1234.0), ("1,234,567.00", 1234567.0),
+    ("USD 1 234", 1234.0), ("0.500", 0.5), ("£5.", 5.0),
+])
 def test_parse_price(text, expected):
     assert parse_price(text) == expected
 
 
-def test_parse_price_rejects_garbage():
+@pytest.mark.parametrize("text", ["N/A", "", "1.2.3", True])
+def test_parse_price_rejects_garbage(text):
     with pytest.raises(ValueError):
-        parse_price("N/A")
+        parse_price(text)
 
 
 @pytest.mark.parametrize("text,expected", [("star-rating One", 1), ("Five", 5), ("star-rating three", 3), (2, 2)])
@@ -25,7 +31,7 @@ def test_parse_rating(text, expected):
     assert parse_rating(text) == expected
 
 
-def test_book_from_raw_normalises_fields():
+def test_book_from_raw_normalizes_fields():
     b = Book.from_raw(RAW, category="Travel", listing_page=1, scraped_at=NOW)
     assert (b.price_gbp, b.rating, b.availability, b.in_stock) == (51.77, 4, "In stock", True)
     assert b.as_row()["url"].startswith("https://")

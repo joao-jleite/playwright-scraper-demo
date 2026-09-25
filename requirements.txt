@@ -1,5 +1,6 @@
+# Upper bounds: a future major release must not break a fresh install (tested with the versions noted).
 playwright==1.58.0
-pydantic>=2.7,<3
-openpyxl>=3.1,<4
-reportlab>=4.0
-matplotlib>=3.8
+pydantic>=2.7,<3          # tested 2.13
+openpyxl>=3.1,<4          # tested 3.1.5
+reportlab>=4.0,<6         # tested 5.0.1
+matplotlib>=3.8,<4        # tested 3.11

@@ -10,17 +10,43 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 # The site encodes the rating as a CSS class: <p class="star-rating Three">
 RATING_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
-_PRICE_RE = re.compile(r"(\d+(?:[.,]\d{1,2})?)")
+# First number in the text, separators included: "£1,234.56" -> "1,234.56". A space (also the
+# no-break spaces used by some locales) counts only when a group of exactly three digits follows it.
+_NUMBER_RE = re.compile(r"\d(?:[\d.,]|[ \u00a0\u202f](?=\d{3}(?!\d)))*")
+_SPACES = str.maketrans("", "", " \u00a0\u202f")
 
 
 def parse_price(value: Any) -> float:
-    """'£51.77' -> 51.77. Raises ValueError when no number is present."""
+    """'£51.77' -> 51.77, '£1,234.56' -> 1234.56, '1.234,56 €' -> 1234.56, '12,50' -> 12.5.
+
+    Raises ValueError when no number is present or the separators are ambiguous.
+    """
+    if isinstance(value, bool):
+        raise ValueError(f"not a price: {value!r}")
     if isinstance(value, (int, float)):
         return float(value)
-    match = _PRICE_RE.search(str(value or ""))
+    match = _NUMBER_RE.search(str(value or ""))
     if not match:
         raise ValueError(f"no price found in {value!r}")
-    return float(match.group(1).replace(",", "."))
+    text = match.group(0).translate(_SPACES).rstrip(".,")  # "£5." -> "5"
+    dot, comma = text.rfind("."), text.rfind(",")
+    if dot >= 0 and comma >= 0:
+        # Both present: the last one is the decimal separator, the other groups thousands.
+        decimal, thousands = (".", ",") if dot > comma else (",", ".")
+        return float(text.replace(thousands, "").replace(decimal, "."))
+    if dot < 0 and comma < 0:
+        return float(text)
+    sep = "." if dot >= 0 else ","
+    head, *groups = text.split(sep)
+    if len(groups) > 1:  # "1,234,567" / "1.234.567": only valid as thousands groups
+        if all(len(g) == 3 for g in groups):
+            return float(head + "".join(groups))
+        raise ValueError(f"ambiguous price {value!r}")
+    # One separator: three digits after it and a non-zero head ("1,234", "12.500") means thousands;
+    # otherwise it is the decimal separator ("51.77", "12,50", "0.500").
+    if len(groups[0]) == 3 and head != "0":
+        return float(head + groups[0])
+    return float(f"{head}.{groups[0]}")
 
 
 def parse_rating(value: Any) -> int:

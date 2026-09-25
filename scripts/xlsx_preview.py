@@ -137,7 +137,7 @@ def render_sheet(ws: Worksheet, idx: int) -> str:
             if cell.alignment is not None and cell.alignment.wrap_text:
                 classes.append("wrap")
             elif isinstance(cell.value, str) and not region and c < max_col and ws.cell(r, c + 1).value is None:
-                classes.append("spill")  # like Excel: text runs over empty neighbours instead of clipping
+                classes.append("spill")  # like Excel: text runs over empty neighbors instead of clipping
             if (r, c) in bars:
                 frac, color = bars[(r, c)]
                 styles.append(f"background-image:linear-gradient(90deg,{color} 0%,#fff {frac * 100:.1f}%,"
@@ -147,7 +147,7 @@ def render_sheet(ws: Worksheet, idx: int) -> str:
             tds.append(f"<td{cls}{sty}>{text}</td>")
         body.append(f'<tr{sticky} style="height:{h}px">{"".join(tds)}</tr>')
     hidden = "" if idx == 0 else " hidden"
-    # table-layout:fixed only honours <col> widths when the table itself has an explicit width
+    # table-layout:fixed only honors <col> widths when the table itself has an explicit width
     total_w = 44 + sum(widths)
     return (f'<div class="sheet{hidden}" data-sheet="{html.escape(ws.title)}">'
             f'<table class="grid" style="width:{total_w}px">'
@@ -204,7 +204,7 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{nam
 <div class="fbar"><div class="nm" id="nm">A1</div><div class="fx">fx</div><div class="val" id="val"></div></div>
 <div class="wrapgrid" id="grid">{sheets}</div>
 <div class="tabs">{tabs}</div>
-<div class="status"><span>Ready</span><span id="st"></span></div>
+<div class="status"><span>HTML preview of the .xlsx file (scripts/xlsx_preview.py), not Excel</span><span id="st"></span></div>
 </div>
 <script>
   const tabs = document.querySelectorAll('.tab');

@@ -21,6 +21,7 @@ import asyncio
 import html
 import json
 import logging
+import shlex
 import sys
 import time
 from datetime import datetime
@@ -32,10 +33,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
+from scraper.cli import build_parser, settings_from_args  # noqa: E402
 from scraper.crawler import CrawlSettings, PageEvent  # noqa: E402
 from scraper.log import ConsoleFormatter, format_console, setup_logging  # noqa: E402
 from scraper.models import Book  # noqa: E402
-from scraper.pipeline import RunSettings, build_outputs, scrape  # noqa: E402
+from scraper.pipeline import build_outputs, scrape  # noqa: E402
 from xlsx_preview import render as render_xlsx  # noqa: E402
 
 BUILD = ROOT / "media_build"
@@ -45,6 +47,8 @@ FULL = ROOT / "examples" / "output"
 DEMO_OUT = ROOT / "demo_out"
 VIEW = {"width": 1280, "height": 800}
 DEMO_CATEGORIES = "Travel,Mystery,Poetry"
+# The command typed on screen. It is parsed by the real CLI parser (see main), so the recorded crawl
+# runs with exactly these settings (delay included: the default 0.5 s, as the log shows).
 DEMO_CMD = f'python -m scraper --categories "{DEMO_CATEGORIES}" --max-pages 2 --concurrency 1 --headed --out demo_out'
 PDFJS = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/"
 ORIGIN = "https://demo.local/"
@@ -57,7 +61,7 @@ TERMINAL_HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
       font:13px "Segoe UI",Arial,sans-serif;color:#aeb4c0}
  .dot{width:12px;height:12px;border-radius:50%;background:#3a3f4b}
  .badge{background:#eb6834;color:#fff;border-radius:10px;padding:1px 9px;font-weight:700;font-size:11px}
- .ff{margin-left:auto;background:#2a78d6;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;
+ .ff{margin-left:14px;background:#2a78d6;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;
      font-weight:600;visibility:hidden}
  .ff.on{visibility:visible}
  #out{flex:1;padding:14px 18px;overflow:hidden;white-space:pre}
@@ -72,7 +76,7 @@ const out = document.getElementById('out');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 function colorize(line) {
-  const m = line.match(/^(\\d\\d:\\d\\d:\\d\\d) (\\w+)\\s+(\\S+)(\\s+)(.*)$/);
+  const m = line.match(/^(\\d\\d:\\d\\d:\\d\\dZ) (\\w+)\\s+(\\S+)(\\s+)(.*)$/);
   if (!m) return esc(line);
   const lv = m[2] === 'INFO' ? 'i' : (m[2] === 'WARNING' ? 'w' : 'e');
   return `<span class="m">${m[1]}</span> <span class="${lv}">${m[2].padEnd(5)}</span> ` +
@@ -230,11 +234,11 @@ class ListHandler(logging.Handler):
 
 
 def full_run_lines() -> list[str]:
-    """examples/output/run_events.jsonl -> the exact console lines of that run (local time)."""
+    """examples/output/run_events.jsonl -> the exact console lines of that run (UTC, like the CLI)."""
     out = []
     for raw in (FULL / "run_events.jsonl").read_text(encoding="utf-8").splitlines():
         ev = json.loads(raw)
-        ts = datetime.fromisoformat(ev.pop("ts")).astimezone()
+        ts = datetime.fromisoformat(ev.pop("ts"))
         level, name = ev.pop("level"), ev.pop("event")
         out.append(format_console(ts, level, name, ev))
     return out
@@ -337,9 +341,9 @@ async def main() -> None:
         await term.set_content(TERMINAL_HTML)
         t = lambda: time.monotonic() - rec.created_at(term)  # noqa: E731
         t_start = t()
-        await term.wait_for_timeout(350)
-        await term.evaluate("([c, ms]) => prompt_(c, ms)", [DEMO_CMD, 16])
-        await term.wait_for_timeout(550)
+        await term.wait_for_timeout(280)
+        await term.evaluate("([c, ms]) => prompt_(c, ms)", [DEMO_CMD, 13])
+        await term.wait_for_timeout(440)
         rec.add("intro", term, [(t_start, t(), 1.0, None)])
         await term.close()
 
@@ -348,8 +352,9 @@ async def main() -> None:
         log = setup_logging(DEMO_OUT / "run_events.jsonl")
         capture = ListHandler()
         log.addHandler(capture)
-        settings = RunSettings(out_dir=Path("demo_out"), categories=DEMO_CATEGORIES, headed=True, crawl=CrawlSettings(
-            concurrency=1, delay_s=0.3, max_pages=2, block_assets=False, wait_until="load"))
+        # Exactly the command shown in the terminal scene, parsed by the CLI's own parser.
+        settings = settings_from_args(build_parser().parse_args(shlex.split(DEMO_CMD)[3:]))
+        settings.out_dir = ROOT / settings.out_dir
         cat_names = DEMO_CATEGORIES.split(",")
         marks: list[tuple[float, float]] = []
         total = {"n": 0}
@@ -389,7 +394,7 @@ async def main() -> None:
         plan, prev = [], 0.25
         for hs, he in marks:
             plan.append((prev, hs - worker_t, 4.0, "4x"))  # navigation + polite delay: fast-forward
-            plan.append((hs - worker_t, he - worker_t, 1.6, None))
+            plan.append((hs - worker_t, he - worker_t, 2.0, "2x"))  # processing + HUD
             prev = he - worker_t
         plan.append((prev, prev + 0.4, 4.0, "4x"))
         rec.add("crawl", worker, plan)
@@ -401,7 +406,7 @@ async def main() -> None:
         await term.evaluate("([c]) => prompt_(c, 0)", [DEMO_CMD])
         await term.evaluate("([l]) => lines(l, 0)", [capture.lines + summary_lines(demo_log, "demo_out")])
         t_a = t()
-        await term.wait_for_timeout(1000)
+        await term.wait_for_timeout(750)
         t_b = t()
         await term.evaluate("() => raw([''])")
         await term.evaluate("([c, ms]) => prompt_(c, ms)", ["python -m scraper --out examples/output", 16])
@@ -411,8 +416,8 @@ async def main() -> None:
         await term.evaluate("() => ff('')")
         await term.evaluate("([l]) => lines(l, 0)", [summary_lines(full_log, r"examples\output")])
         t_c = t()
-        await term.wait_for_timeout(1300)
-        rec.add("log", term, [(t_a - 0.1, t_b, 1.0, None), (t_b, t_c, 1.6, None), (t_c, t(), 1.0, None)])
+        await term.wait_for_timeout(1100)
+        rec.add("log", term, [(t_a - 0.1, t_b, 1.0, None), (t_b, t_c, 3.0, "3x"), (t_c, t(), 1.0, None)])
         await term.close()
 
         # ---------------------------------------------------------------- 4. PDF in Chromium (pdf.js)
@@ -422,12 +427,12 @@ async def main() -> None:
         t = lambda: time.monotonic() - rec.created_at(pdf)  # noqa: E731
         t_a = t()
         # Page-by-page jumps (like PageDown) instead of smooth scrolling: reads better and keeps the GIF small.
-        await pdf.wait_for_timeout(1300)
+        await pdf.wait_for_timeout(850)
         tops = await pdf.evaluate("window.pageTops")
-        for top, hold in ((tops[0] + 330, 900), (tops[1], 1700), (tops[2], 1400)):
-            await pdf.evaluate(SCROLL_JS, [top, 120])
+        for top, hold in ((tops[0] + 330, 600), (tops[1], 1100), (tops[2], 900)):
+            await pdf.evaluate(SCROLL_JS, [top, 80])
             await pdf.wait_for_timeout(hold)
-        rec.add("pdf", pdf, [(t_a, t(), 1.3, None)])
+        rec.add("pdf", pdf, [(t_a, t(), 1.0, None)])
         await pdf.close()
 
         # ---------------------------------------------------------------- 5. spreadsheet
@@ -436,13 +441,13 @@ async def main() -> None:
         t = lambda: time.monotonic() - rec.created_at(xl)  # noqa: E731
         t_a = t()
         await xl.evaluate(CURSOR_JS, [560, 400, 10])
-        await xl.wait_for_timeout(900)
-        for name, hold in (("Summary", 1900), ("Opportunities", 1400)):
+        await xl.wait_for_timeout(600)
+        for name, hold in (("Summary", 1300), ("Opportunities", 950)):
             box = await xl.locator(f'.tab[data-sheet="{name}"]').bounding_box()
-            await xl.evaluate(CURSOR_JS, [box["x"] + box["width"] / 2 - 4, box["y"] + box["height"] / 2 - 4, 550])
+            await xl.evaluate(CURSOR_JS, [box["x"] + box["width"] / 2 - 4, box["y"] + box["height"] / 2 - 4, 370])
             await xl.click(f'.tab[data-sheet="{name}"]')
             await xl.wait_for_timeout(hold)
-        rec.add("xlsx", xl, [(t_a, t(), 1.2, None)])
+        rec.add("xlsx", xl, [(t_a, t(), 1.0, None)])
         await xl.close()
 
         # ---------------------------------------------------------------- 6. end card
@@ -472,7 +477,7 @@ async def main() -> None:
         await sp.goto(ORIGIN + "books.xlsx.html")
         await sp.evaluate("showSheet('Summary')")
         await sp.wait_for_timeout(200)
-        await sp.screenshot(path=str(SHOTS / "03-excel-summary.png"))
+        await sp.screenshot(path=str(SHOTS / "03-xlsx-preview.png"))
         await shots_ctx.close()
 
         await context.close()  # flushes the videos

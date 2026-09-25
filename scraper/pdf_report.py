@@ -1,4 +1,4 @@
-"""PDF report (reportlab platypus): cover with KPIs, 2 charts, top-10 table, category summary."""
+"""PDF report (reportlab platypus): cover with KPIs, 2 charts, top opportunities, category summary."""
 
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ class ReportInput:
     retries: int
     invalid_records: int
     duplicates: int
-    concurrency: int
+    concurrency: int  # browser pages actually used in this run (not the --concurrency ceiling)
     delay_s: float
     kpis: dict
     summary: list[CategorySummary]
@@ -55,6 +55,7 @@ class ReportInput:
     categories_crawled: int = 0     # how many categories this run covered...
     categories_available: int = 0   # ...out of how many the site lists
     headed: bool = False
+    crawl_delay_s: float | None = None  # robots.txt Crawl-delay, when the site sets one
 
 
 def _register_fonts() -> None:
@@ -84,6 +85,26 @@ def _styles() -> dict[str, ParagraphStyle]:
 
 def _gbp(v: float) -> str:
     return f"£{v:,.2f}"
+
+
+def _pct_below(p: float) -> str:
+    """0.253 -> '25%'. A price a penny under the median reads '<1%' instead of a misleading '0%'."""
+    return "<1%" if p < 0.01 else f"{p:.0%}"
+
+
+def _plural(n: int, word: str) -> str:
+    return f"{n} {word}" + ("" if n == 1 else "s")
+
+
+def _fit_style(text: str, style: ParagraphStyle, max_width: float, min_size: float = 10) -> ParagraphStyle:
+    """Same style, font size reduced until `text` fits in `max_width` (KPI tiles have a fixed width)."""
+    size = style.fontSize
+    while size > min_size and pdfmetrics.stringWidth(text, style.fontName, size) > max_width:
+        size -= 0.5
+    if size == style.fontSize:
+        return style
+    # same leading as the full-size style, so the tile's label stays level with its neighbors
+    return ParagraphStyle(f"{style.name}_{size}", parent=style, fontSize=size, leading=style.leading)
 
 
 def _footer(canvas, doc) -> None:
@@ -140,11 +161,13 @@ def _kpi_grid(data: ReportInput, st: dict[str, ParagraphStyle], width: float) ->
         ("Average rating", f"{k['avg_rating']:.2f} / 5"),
         ("In stock", f"{k['in_stock_pct']:.0%}"),
         ("Opportunities", f"{k['opportunities']}"),
-        ("Price range", f"£{k['min_price']:.0f}–£{k['max_price']:.0f}"),
+        ("Price range", f"{_gbp(k['min_price'])}–{_gbp(k['max_price'])}"),  # exact, never rounded
     ]
-    cells = [[Paragraph(label, st["kpi_label"]), Paragraph(value, st["kpi_value"])] for label, value in tiles]
-    grid = [cells[0:4], cells[4:8]]
     col_w = width / 4
+    text_w = col_w - 9 - 6 - 2  # tile width minus left/right padding and a small safety margin
+    cells = [[Paragraph(label, st["kpi_label"]), Paragraph(value, _fit_style(value, st["kpi_value"], text_w))]
+             for label, value in tiles]
+    grid = [cells[0:4], cells[4:8]]
     t = Table(grid, colWidths=[col_w] * 4, rowHeights=[20 * mm, 20 * mm])
     t.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), STRIPE),
@@ -174,7 +197,37 @@ def _table(header: list[str], rows: list[list], col_w: list[float], align_right_
     return t
 
 
-def write_pdf(path: Path, data: ReportInput) -> Path:
+def _market_sentence(summary: list[CategorySummary], shown: int, overall_avg: float) -> str:
+    """Page 2 lead sentence. Wording follows the real number of categories (partial runs included)."""
+    top = summary[:shown]
+    if not top:
+        return ""
+    if len(top) == 1:
+        c = top[0]
+        return (f"This run covers one category, <b>{escape(c.category)}</b>, with an average price of "
+                f"{_gbp(c.avg_price)}.")
+    scope = (f"Among the {len(top)} largest of {len(summary)} categories" if len(summary) > len(top)
+             else f"Among the {len(top)} categories in this run")
+    priciest = max(top, key=lambda s: s.avg_price)
+    cheapest = min(top, key=lambda s: s.avg_price)
+    return (f"{scope}, <b>{escape(priciest.category)}</b> has the highest average price "
+            f"({_gbp(priciest.avg_price)}) and <b>{escape(cheapest.category)}</b> the lowest "
+            f"({_gbp(cheapest.avg_price)}). Overall average: {_gbp(overall_avg)}.")
+
+
+def _opportunities_intro(total: int, shown: int) -> str:
+    rule = "Rule: rating ≥ 4 stars and price below the median of its own category. "
+    if total == 0:
+        return rule + "No title matches it in this run."
+    order = "sorted by rating, then by how far they sit under the median."
+    if total > shown:
+        return rule + f"{total} titles match; the top {shown} are listed below, {order}"
+    return rule + f"{_plural(total, 'title')} match{'es' if total == 1 else ''}, all listed below, {order}"
+
+
+def write_pdf(path: Path, data: ReportInput, top_categories: int = 12, top_opportunities: int = 10,
+              summary_rows: int = 15) -> int:
+    """Build the report. Returns the number of pages actually written."""
     _register_fonts()
     st = _styles()
     width = PAGE_W - 2 * CONTENT_X  # usable frame width
@@ -185,6 +238,10 @@ def write_pdf(path: Path, data: ReportInput) -> Path:
     scope = (f"all {crawled}" if crawled >= data.categories_available
              else f"{crawled} of {data.categories_available}")
     mode = "headed" if data.headed else "headless"
+    pages_used = "1 browser page" if data.concurrency == 1 else f"{data.concurrency} concurrent browser pages"
+    robots_text = data.robots_summary[:1].upper() + data.robots_summary[1:]
+    robots_delay = (f" The site's robots.txt Crawl-delay of {data.crawl_delay_s:g} s is enforced across all "
+                    "pages." if data.crawl_delay_s else "")
 
     # ------------------------------------------------------------ page 1
     story.append(Spacer(1, COVER_BAND_H - MARGIN + 8 * mm))
@@ -196,9 +253,10 @@ def write_pdf(path: Path, data: ReportInput) -> Path:
         f"<b>Scenario.</b> A retailer wants a daily view of a competitor's catalog: what is listed, at which "
         f"price, how it is rated and whether it is in stock. This report is generated automatically from that crawl.",
         f"<b>Method.</b> Playwright (Chromium, {mode}) walks {scope} category listings with "
-        f"pagination, using {data.concurrency} concurrent pages, a {data.delay_s:.1f} s polite delay with jitter "
-        f"and retries with exponential backoff. Every record is validated with pydantic before export.",
-        f"<b>robots.txt.</b> {escape(data.robots_summary)}.",
+        f"pagination, using {pages_used}, a {data.delay_s:.1f} s polite delay with "
+        f"jitter and retries with exponential backoff.{robots_delay} Every record is validated with pydantic "
+        f"before export.",
+        f"<b>robots.txt.</b> {escape(robots_text)}.",
         f"<b>Quality.</b> {data.pages_ok} listing pages OK, {data.pages_failed} failed, {data.retries} retries, "
         f"{data.invalid_records} invalid records, {data.duplicates} duplicates removed.",
         "<b>Deliverables.</b> books.xlsx (Data, Summary, Opportunities, Run Info), books.csv, this PDF and "
@@ -213,14 +271,9 @@ def write_pdf(path: Path, data: ReportInput) -> Path:
 
     # ------------------------------------------------------------ page 2
     story.append(Paragraph("Market overview", st["h1"]))
-    top = data.summary[:12]
-    if top:
-        priciest = max(top, key=lambda s: s.avg_price)
-        cheapest = min(top, key=lambda s: s.avg_price)
-        story.append(Paragraph(
-            f"Among the 12 largest categories, <b>{escape(priciest.category)}</b> has the highest average price "
-            f"({_gbp(priciest.avg_price)}) and <b>{escape(cheapest.category)}</b> the lowest "
-            f"({_gbp(cheapest.avg_price)}). Catalog average: {_gbp(k['avg_price'])}.", st["body"]))
+    lead = _market_sentence(data.summary, top_categories, k["avg_price"])
+    if lead:
+        story.append(Paragraph(lead, st["body"]))
     story.append(Spacer(1, 3 * mm))
     story.append(Image(str(data.chart_price), width=width, height=width * 4.1 / 7.2))
     story.append(Spacer(1, 5 * mm))
@@ -233,34 +286,43 @@ def write_pdf(path: Path, data: ReportInput) -> Path:
     story.append(PageBreak())
 
     # ------------------------------------------------------------ page 3
-    story.append(Paragraph("Top 10 opportunities", st["h1"]))
-    story.append(Paragraph(
-        f"Rule: rating ≥ 4 stars and price below the median of its own category. {k['opportunities']} titles match; "
-        "the ten below are sorted by rating, then by how far they sit under the median.", st["small"]))
+    opps = data.opportunities[:top_opportunities]
+    story.append(Paragraph(f"Top {len(opps)} opportunities" if opps else "Opportunities", st["h1"]))
+    story.append(Paragraph(_opportunities_intro(len(data.opportunities), len(opps)), st["small"]))
     story.append(Spacer(1, 3 * mm))
-    rows = []
-    for i, o in enumerate(data.opportunities[:10], start=1):
-        rows.append([str(i), Paragraph(escape(o.book.title), st["cell"]), Paragraph(escape(o.book.category), st["cell"]),
-                     _gbp(o.book.price_gbp), _gbp(o.category_median), f"−{o.below_median_pct:.0%}",
-                     "★" * o.book.rating])
-    story.append(_table(["#", "Title", "Category", "Price", "Cat. median", "vs median", "Rating"], rows,
-                        [7 * mm, 61 * mm, 28 * mm, 16 * mm, 20 * mm, 17 * mm, 20 * mm], align_right_from=3))
+    if opps:
+        rows = []
+        for i, o in enumerate(opps, start=1):
+            rows.append([str(i), Paragraph(escape(o.book.title), st["cell"]),
+                         Paragraph(escape(o.book.category), st["cell"]), _gbp(o.book.price_gbp),
+                         _gbp(o.category_median), _pct_below(o.below_median_pct), "★" * o.book.rating])
+        story.append(_table(["#", "Title", "Category", "Price", "Category\nmedian", "Below\nmedian", "Rating"],
+                            rows, [7 * mm, 58 * mm, 28 * mm, 16 * mm, 20 * mm, 20 * mm, 20 * mm],
+                            align_right_from=3))
 
     story.append(Spacer(1, 8 * mm))
+    cats = data.summary[:summary_rows]
     cat_rows = [[Paragraph(escape(s.category), st["cell"]), str(s.titles), _gbp(s.avg_price), _gbp(s.median_price),
                  _gbp(s.min_price), _gbp(s.max_price), f"{s.avg_rating:.2f}", str(s.opportunities)]
-                for s in data.summary[:15]]
-    story.append(KeepTogether([
-        Paragraph("Category summary (15 largest categories)", st["h2"]),
-        Paragraph("Full list of categories in books.xlsx → Summary.", st["small"]),
+                for s in cats]
+    truncated = len(data.summary) > len(cats)
+    if truncated:
+        heading = f"Category summary ({len(cats)} largest of {len(data.summary)} categories)"
+    else:
+        heading = f"Category summary ({len(cats)} categories)" if len(cats) > 1 else "Category summary"
+    block = [Paragraph(heading, st["h2"])]
+    if truncated:
+        block.append(Paragraph("Full list of categories in books.xlsx → Summary.", st["small"]))
+    block += [
         Spacer(1, 2 * mm),
         _table(["Category", "Titles", "Avg price", "Median", "Min", "Max", "Avg rating", "Opport."], cat_rows,
                [40 * mm, 14 * mm, 19 * mm, 19 * mm, 17 * mm, 17 * mm, 22 * mm, 21 * mm], align_right_from=1),
-    ]))
+    ]
+    story.append(KeepTogether(block))
 
     path.parent.mkdir(parents=True, exist_ok=True)
     doc = SimpleDocTemplate(str(path), pagesize=A4, leftMargin=MARGIN, rightMargin=MARGIN, topMargin=MARGIN,
                             bottomMargin=18 * mm, title="Competitor Catalog & Price Monitor (DEMO)",
                             author=TOOL_NAME, creator=TOOL_NAME, subject="Web scraping demo report")
     doc.build(story, onFirstPage=lambda c, d: _cover(c, d, data), onLaterPages=_footer)
-    return path
+    return doc.page  # reportlab leaves the last page number here after build()

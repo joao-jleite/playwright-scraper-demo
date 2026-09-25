@@ -19,6 +19,8 @@ __pycache__/
 /demo_out/
 /tmp/
 /media_build/
+# staging folder of an interrupted run (normally removed by the scraper itself)
+.staging-*/
 *.webm
 *.log
 

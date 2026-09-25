@@ -7,6 +7,8 @@ Design notes
   lets different categories progress in parallel while each category stays ordered.
 - Every navigation goes through `_goto_with_retry` (exponential backoff + jitter);
   after every page the worker sleeps `delay_s` (+ jitter) to stay polite.
+- robots.txt is checked for every URL, the home page included. A robots.txt `Crawl-delay` is
+  enforced by one limiter shared by all workers, so N workers never exceed the site's rate.
 - Extraction is one `evaluate` call per page (no per-element round trips).
 """
 
@@ -30,7 +32,7 @@ from pydantic import ValidationError
 from scraper import REPO_URL, TOOL_NAME, __version__
 from scraper.log import event
 from scraper.models import Book, Category
-from scraper.robots import RobotsPolicy
+from scraper.robots import RobotsDisallowed, RobotsPolicy
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -81,7 +83,7 @@ class CrawlSettings:
     concurrency: int = 4
     delay_s: float = 0.5
     max_pages: Optional[int] = None  # per category; None = follow pagination to the end
-    retries: int = 3
+    attempts: int = 3  # tries per page, the first one included (3 = up to 2 retries)
     backoff_base_s: float = 1.0
     nav_timeout_ms: int = 20_000
     block_assets: bool = True  # skip images/fonts/media: less load on the target, faster runs
@@ -118,6 +120,7 @@ class CrawlResult:
     pages: list[PageEvent] = field(default_factory=list)
     validation_errors: list[dict[str, Any]] = field(default_factory=list)
     retries: int = 0
+    workers: int = 0  # browser pages actually used: min(concurrency, categories)
 
     @property
     def pages_ok(self) -> int:
@@ -135,6 +138,27 @@ class CrawlResult:
 PageHook = Callable[[Page, PageEvent, list[Book]], Awaitable[None]]
 
 
+class RateGate:
+    """Spaces the start of every request by at least `interval` seconds, across all workers.
+
+    Used for a robots.txt Crawl-delay: the per-worker polite delay alone would let N workers hit the
+    site N times faster than the delay asks for. Waiters queue on the lock, so they go one by one.
+    """
+
+    def __init__(self, interval: float) -> None:
+        self.interval = interval
+        self._next = 0.0
+        self._lock = asyncio.Lock()
+
+    async def wait(self) -> None:
+        async with self._lock:
+            # Loop: asyncio.sleep can wake a few ms early (Windows timer ticks are ~15.6 ms), and the
+            # Crawl-delay is a minimum. perf_counter has sub-microsecond resolution on every OS.
+            while (delay := self._next - time.perf_counter()) > 0:
+                await asyncio.sleep(delay)
+            self._next = time.perf_counter() + self.interval
+
+
 class Crawler:
     def __init__(self, context: BrowserContext, settings: CrawlSettings, log: logging.Logger,
                  robots: Optional[RobotsPolicy] = None, on_page: Optional[PageHook] = None) -> None:
@@ -144,6 +168,8 @@ class Crawler:
         self.robots = robots
         self.on_page = on_page
         self.result = CrawlResult()
+        crawl_delay = robots.crawl_delay_s if robots else None
+        self._gate = RateGate(crawl_delay) if crawl_delay else None
         self._cat_items: dict[str, int] = defaultdict(int)
         self._cat_pages: dict[str, int] = defaultdict(int)
 
@@ -161,6 +187,8 @@ class Crawler:
         await self.context.route("**/*", _block)
 
     async def discover_categories(self) -> list[Category]:
+        if self.robots and not self.robots.allows(self.s.base_url):
+            raise RobotsDisallowed(f"robots.txt disallows {self.s.base_url} for {self.robots.product_token}")
         page = await self.context.new_page()
         try:
             await self._goto_with_retry(page, self.s.base_url, what="home")
@@ -178,8 +206,10 @@ class Crawler:
             queue.put_nowait(PageTask(cat, cat.url, 1))
 
         n_workers = max(1, min(self.s.concurrency, len(categories)))
+        self.result.workers = n_workers
+        robots_delay = {"crawl_delay_s": self._gate.interval} if self._gate else {}
         event(self.log, "crawl_start", categories=len(categories), concurrency=n_workers,
-              delay_s=self.s.delay_s, max_pages=self.s.max_pages or "all")
+              delay_s=self.s.delay_s, **robots_delay, max_pages=self.s.max_pages or "all")
         workers = [asyncio.create_task(self._worker(i, queue)) for i in range(n_workers)]
         try:
             await queue.join()
@@ -213,7 +243,7 @@ class Crawler:
         ev = PageEvent(category=cat, page_no=task.page_no, url=task.url, status="failed")
         t0 = time.perf_counter()
 
-        if self.robots and not self.robots.allows(task.url, self.s.user_agent):
+        if self.robots and not self.robots.allows(task.url):
             ev.status = "skipped_robots"
             self.result.pages.append(ev)
             event(self.log, "robots_skip", logging.WARNING, category=cat, url=task.url)
@@ -270,8 +300,10 @@ class Crawler:
     async def _goto_with_retry(self, page: Page, url: str, what: str) -> tuple[int, int]:
         """Navigate with retries. Returns (http_status, attempts). Raises on final failure."""
         last_exc: Exception | None = None
-        for attempt in range(1, self.s.retries + 1):
+        for attempt in range(1, self.s.attempts + 1):
             try:
+                if self._gate is not None:  # robots.txt Crawl-delay, shared by all workers
+                    await self._gate.wait()
                 resp = await page.goto(url, wait_until=self.s.wait_until, timeout=self.s.nav_timeout_ms)
                 status = resp.status if resp else 0
                 if status == 429 or status >= 500:
@@ -283,7 +315,7 @@ class Crawler:
                 raise
             except (TransientHTTPError, PlaywrightTimeoutError, PlaywrightError) as exc:
                 last_exc = exc
-                if attempt == self.s.retries:
+                if attempt == self.s.attempts:
                     break
                 wait = self.s.backoff_base_s * (2 ** (attempt - 1)) + random.uniform(0, 0.3)
                 self.result.retries += 1

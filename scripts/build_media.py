@@ -1,8 +1,10 @@
 """Stitch the recorded .webm segments into docs/demo.gif and docs/demo.mp4 (imageio + imageio-ffmpeg).
 
 Reads media_build/timeline.json written by record_demo.py. Each segment has a plan of
-(t0, t1, speed, badge) intervals: long waits (page loads, polite delays) are fast-forwarded and
-get a visible "4x" badge so the viewer knows time was compressed.
+(t0, t1, speed, badge) intervals. Only real waits are sped up: the crawl (page loads and polite
+delays 4x, page processing 2x) and the replay of the full-run log (3x). Every frame of a sped-up
+interval carries a speed badge; everything else plays at 1x. A sped-up interval without a badge
+is refused, so the media can never compress time silently.
 
     python scripts/build_media.py --out docs
 """
@@ -22,11 +24,6 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "media_build"
 W, H = 1280, 800
-# Extra tempo for scripted parts (typing, holds, smooth scrolls). Intervals that carry a badge
-# (real waits: navigation + polite delay) keep the speed printed on the badge.
-# A list gives one factor per interval of the segment plan (log: hold, replay of the full-run log, hold).
-TEMPO: dict[str, float | list[float]] = {"intro": 1.25, "crawl": 1.3, "log": [1.35, 2.0, 1.2], "pdf": 1.2,
-                                         "xlsx": 1.25, "end": 1.0}
 FONT_PATH = str(Path(matplotlib.get_data_path()) / "fonts" / "ttf" / "DejaVuSans-Bold.ttf")
 
 
@@ -34,12 +31,12 @@ _FONTS: dict[int, ImageFont.FreeTypeFont] = {}
 
 
 def badge(img: Image.Image, text: str) -> Image.Image:
-    """Pill in the top-right corner, '▶▶ 4× fast-forward', sized relative to a 1280 px frame."""
+    """Pill in the top-right corner, '▶▶ 4× speed', sized relative to a 1280 px frame."""
     k = img.width / W
     size = round(22 * k)
     font = _FONTS.setdefault(size, ImageFont.truetype(FONT_PATH, size))
     speed = text.replace("x", "×")
-    label = f"▶▶ {speed} fast-forward"
+    label = f"▶▶ {speed} speed"
     overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(overlay)
     tw = d.textlength(label, font=font)
@@ -107,13 +104,12 @@ def settle(frames: list[np.ndarray], block: int = 16, real_change: float = 45.0)
     return [o.astype(np.uint8) for o in out]
 
 
-def schedule(plan: list, fps: float, duration: float,
-             tempo: float | list[float] = 1.0) -> list[tuple[float, str | None]]:
+def schedule(plan: list, fps: float, duration: float) -> list[tuple[float, str | None]]:
     """Output frames -> (source time, badge) for one segment."""
     out = []
-    for i, (t0, t1, speed, tag) in enumerate(plan):
-        factor = tempo[i] if isinstance(tempo, list) else tempo
-        speed = speed if tag else speed * factor
+    for t0, t1, speed, tag in plan:
+        if speed > 1.001 and not tag:
+            raise ValueError(f"interval {t0:.2f}-{t1:.2f} s is sped up {speed}x without a badge")
         t0, t1 = max(0.0, t0), min(t1, duration - 0.05)
         if t1 <= t0:
             continue
@@ -122,10 +118,10 @@ def schedule(plan: list, fps: float, duration: float,
     return out
 
 
-def hud_plan(video: Path, fast: float = 4.0, normal: float = 1.6) -> list:
+def hud_plan(video: Path, fast: float = 4.0, normal: float = 2.0) -> list:
     """Crawl segment plan taken from the video itself: the demo HUD (dark box, bottom-right) is on
     screen while a page is being processed and disappears while the next page loads. Loading gaps are
-    fast-forwarded with a badge; processing is shown at `normal` speed."""
+    fast-forwarded (`fast`), processing is shown at `normal` speed; both carry their speed badge."""
     reader = imageio_ffmpeg.read_frames(str(video))
     meta = next(reader)
     fps, (w, h) = meta["fps"], meta["size"]
@@ -143,7 +139,7 @@ def hud_plan(video: Path, fast: float = 4.0, normal: float = 1.6) -> list:
     for i, t_on in enumerate(ons):
         plan.append((cursor, t_on, fast, "4x"))
         t_off = next((t for t in offs if t > t_on), end - 0.1)
-        plan.append((t_on, t_off, normal, None))
+        plan.append((t_on, t_off, normal, f"{normal:g}x"))
         cursor = t_off
     return plan
 
@@ -204,7 +200,6 @@ def main() -> None:
     for seg in timeline:
         video = ROOT / seg["video"]
         dur = video_duration(video)
-        tempo = TEMPO.get(seg["name"], 1.0)
         if seg["name"] == "crawl":
             seg["plan"] = hud_plan(video)
         elif seg.get("lifetime"):
@@ -213,7 +208,7 @@ def main() -> None:
             seg["plan"] = [(t0 * k, t1 * k, sp, tag) for t0, t1, sp, tag in seg["plan"]]
         for fps, sink in ((a.mp4_fps, "mp4"), (a.gif_fps, "gif")):
             frames, tags = [], []
-            for img, tag in iter_segment(video, schedule(seg["plan"], fps, dur, tempo)):
+            for img, tag in iter_segment(video, schedule(seg["plan"], fps, dur)):
                 if sink == "gif":
                     img = img.resize((a.gif_width, gif_h), Image.LANCZOS)
                 frames.append(np.asarray(img))

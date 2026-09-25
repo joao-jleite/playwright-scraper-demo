@@ -3,18 +3,24 @@
 No browser and no network: build_outputs() only needs the in-memory outcome of a crawl.
 """
 
+import contextlib
 import csv
 import json
+import os
 import re
+import sys
 from datetime import datetime, timezone
 
 import pytest
 from openpyxl import load_workbook
 
+import scraper.pipeline as pipeline
+from scraper.analysis import CategorySummary
 from scraper.crawler import CrawlResult, CrawlSettings, PageEvent
 from scraper.log import setup_logging
 from scraper.models import Book, Category
-from scraper.pipeline import CSV_COLUMNS, RunSettings, ScrapeOutcome, build_outputs
+from scraper.pdf_report import _market_sentence, _opportunities_intro, _pct_below
+from scraper.pipeline import CSV_COLUMNS, OutputLockedError, RunSettings, ScrapeOutcome, build_outputs
 from scraper.robots import RobotsPolicy
 
 NOW = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
@@ -23,9 +29,10 @@ CATS = [Category(name=n, url=f"https://books.toscrape.com/catalogue/category/boo
 
 
 def _book(title: str, category: str, price: float, rating: int, stock: bool = True) -> Book:
+    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
     return Book(title=title, category=category, price_gbp=price, rating=rating,
                 availability="In stock" if stock else "Out of stock", in_stock=stock,
-                url=f"https://books.toscrape.com/catalogue/{title.lower().replace(' ', '-')}_1/index.html",
+                url=f"https://books.toscrape.com/catalogue/{slug}_1/index.html",
                 listing_page=1, scraped_at=NOW)
 
 
@@ -35,7 +42,7 @@ def _outcome(books: list[Book], failed_page: bool = False) -> ScrapeOutcome:
     if failed_page:
         pages.append(PageEvent(category="Mystery", page_no=1, url=CATS[2].url, status="failed", attempts=3,
                                error="TimeoutError: simulated"))
-    result = CrawlResult(books=books, pages=pages, retries=2 if failed_page else 0)
+    result = CrawlResult(books=books, pages=pages, retries=2 if failed_page else 0, workers=3)
     robots = RobotsPolicy("https://books.toscrape.com/robots.txt", 404, "no robots.txt (HTTP 404): test")
     return ScrapeOutcome(robots=robots, available=CATS, selected=CATS, result=result, started_at=NOW,
                          crawl_seconds=12.3)
@@ -48,15 +55,19 @@ BOOKS = [
     _book("Poem Deal", "Poetry", 10.0, 4, stock=False),
     _book("Poem Luxe", "Poetry", 48.0, 2),
 ]
+DELIVERABLES = ["books.csv", "books.xlsx", "report.pdf", "run_log.json",
+                "charts/avg_price_by_category.png", "charts/rating_distribution.png"]
+
+
+def _build(out, books, failed_page=False):
+    settings = RunSettings(out_dir=out, crawl=CrawlSettings(concurrency=4))
+    return build_outputs(_outcome(books, failed_page), settings, setup_logging(None, "WARNING"), wall_t0=0.0)
 
 
 @pytest.fixture()
 def run(tmp_path):
     """Run the exporters once; a duplicate row and a failed page exercise the 'partial' path."""
-    settings = RunSettings(out_dir=tmp_path, crawl=CrawlSettings())
-    log = setup_logging(None, "WARNING")
-    run_log = build_outputs(_outcome(BOOKS + [BOOKS[0]], failed_page=True), settings, log, wall_t0=0.0)
-    return tmp_path, run_log
+    return tmp_path, _build(tmp_path, BOOKS + [BOOKS[0]], failed_page=True)
 
 
 def test_csv_has_bom_header_and_deduplicated_rows(run):
@@ -93,6 +104,16 @@ def test_xlsx_sheets_tables_and_formats(run):
     assert titles == ["Cheap Gem", "Poem Deal"]
 
 
+def test_run_info_reports_the_workers_actually_used(run):
+    out, saved = run
+    info = {r[0].value: r[1].value for r in load_workbook(out / "books.xlsx")["Run Info"].iter_rows(min_row=4)
+            if r[0].value}
+    # --concurrency 4, but the crawl only used 3 pages: the report must say 3
+    assert info["Politeness"].startswith("3 browser pages at a time")
+    assert saved["settings"]["concurrency"] == 4 and saved["settings"]["workers_used"] == 3
+    assert saved["settings"]["attempts"] == 3
+
+
 def test_pdf_is_valid_and_has_three_pages(run):
     out, _ = run
     pdf = (out / "report.pdf").read_bytes()
@@ -113,11 +134,76 @@ def test_run_log_reports_partial_run(run):
     assert saved["errors"][0]["error"].startswith("TimeoutError")
     assert saved["kpis"]["opportunities"] == 2
     assert {"csv", "xlsx", "pdf", "run_log"} <= saved["outputs"].keys()
+    assert not list(out.glob(".staging-*"))  # the staging folder is always cleaned up
 
 
-def test_no_valid_records_skips_xlsx_and_pdf(tmp_path):
-    settings = RunSettings(out_dir=tmp_path, crawl=CrawlSettings())
-    run_log = build_outputs(_outcome([]), settings, setup_logging(None, "WARNING"), wall_t0=0.0)
-    assert run_log["status"] == "failed"
-    assert (tmp_path / "books.csv").exists() and (tmp_path / "run_log.json").exists()
-    assert not (tmp_path / "books.xlsx").exists() and not (tmp_path / "report.pdf").exists()
+def test_no_valid_records_keeps_previous_deliverables(tmp_path):
+    _build(tmp_path, BOOKS)
+    before = {n: (tmp_path / n).read_bytes() for n in DELIVERABLES if n != "run_log.json"}
+    run_log = _build(tmp_path, [])
+    assert run_log["status"] == "failed" and "left unchanged" in run_log["note"]
+    assert json.loads((tmp_path / "run_log.json").read_text(encoding="utf-8"))["status"] == "failed"
+    # no empty CSV next to an older workbook: the previous deliverables are exactly as they were
+    assert {n: (tmp_path / n).read_bytes() for n in before} == before
+
+
+def test_formula_like_titles_stay_text(tmp_path):
+    evil = [_book('=HYPERLINK("https://example.com","click")', "Travel", 20.0, 5),
+            _book("+cmd", "Travel", 30.0, 3), _book("Normal", "Travel", 40.0, 1)]
+    _build(tmp_path, evil)
+    ws = load_workbook(tmp_path / "books.xlsx")["Data"]
+    cells = {ws.cell(row=r, column=1).value: ws.cell(row=r, column=1).data_type for r in range(2, 5)}
+    assert cells['=HYPERLINK("https://example.com","click")'] == "s"  # a string cell, never a live formula
+    rows = list(csv.DictReader((tmp_path / "books.csv").open(encoding="utf-8-sig")))
+    titles = {r["title"] for r in rows}
+    assert "'=HYPERLINK(\"https://example.com\",\"click\")" in titles and "'+cmd" in titles and "Normal" in titles
+
+
+@contextlib.contextmanager
+def _locked(path, monkeypatch):
+    """Hold `path` the way Excel does. On Windows a real open handle blocks renaming the file;
+    elsewhere renames are never blocked, so the same PermissionError is simulated."""
+    if sys.platform == "win32":
+        with open(path, "rb"):
+            yield
+    else:
+        real = os.replace
+
+        def fake(src, dst):
+            if os.fspath(src) == os.fspath(path):
+                raise PermissionError(13, "locked", os.fspath(src))
+            return real(src, dst)
+        monkeypatch.setattr(pipeline.os, "replace", fake)
+        yield
+        monkeypatch.setattr(pipeline.os, "replace", real)
+
+
+def test_locked_output_changes_nothing_and_logs_failure(tmp_path, monkeypatch):
+    _build(tmp_path, BOOKS)
+    before = {n: (tmp_path / n).read_bytes() for n in DELIVERABLES if n != "run_log.json"}
+    with _locked(tmp_path / "books.xlsx", monkeypatch):
+        with pytest.raises(OutputLockedError, match="books.xlsx is open in another program"):
+            _build(tmp_path, BOOKS[:3])  # a different result that would change every file
+    # all or nothing: every previous deliverable is still the old one...
+    assert {n: (tmp_path / n).read_bytes() for n in before} == before
+    # ...and run_log.json says the run failed, and why
+    saved = json.loads((tmp_path / "run_log.json").read_text(encoding="utf-8"))
+    assert saved["status"] == "failed" and saved["failed_stage"] == "outputs"
+    assert "books.xlsx is open" in saved["error"] and saved["records"]["exported"] == 3
+    assert not list(tmp_path.glob(".staging-*"))
+
+
+def _summary(names):
+    return [CategorySummary(n, 10 - i, 20.0 + i, 10.0, 30.0, 20.0, 3.0, 1.0, 1) for i, n in enumerate(names)]
+
+
+def test_pdf_wording_follows_the_real_number_of_categories():
+    two = _market_sentence(_summary(["Travel", "Poetry"]), 12, 21.0)
+    assert two.startswith("Among the 2 categories in this run") and "12" not in two
+    many = _market_sentence(_summary([f"C{i}" for i in range(50)]), 12, 21.0)
+    assert many.startswith("Among the 12 largest of 50 categories")
+    assert _market_sentence(_summary(["Travel"]), 12, 21.0).startswith("This run covers one category")
+    assert "6 titles match, all listed below" in _opportunities_intro(6, 6)
+    assert "173 titles match; the top 10 are listed below" in _opportunities_intro(173, 10)
+    assert "No title matches" in _opportunities_intro(0, 0)
+    assert (_pct_below(0.0003), _pct_below(0.253)) == ("<1%", "25%")
